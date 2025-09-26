@@ -2,5 +2,9 @@
     color: blue;
     margin: 10px;
     font: 14px Tahoma;
+    background-color: antiquewhite;
 
+}
+button.subpage{
+    color: black;
 }
