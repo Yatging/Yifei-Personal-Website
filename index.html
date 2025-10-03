@@ -4,31 +4,35 @@
 
     </head>
     <body>
-        <div id="main">
-    <!--介系备注-->
-    This is my personal website.介系我滴网站
-    <button>press me</button>
-    <button class="subpage">about me</button>
-    <button class="subpage">contact me</button>
-    <p>My self-introduction is one sentence. ↓me facing any problems</p>
-    <img src="me.jpg"/>
-</div>
+    <h1>This is a title</h1>
 
-    </body>
+    <div id="main">
+        <!-- 介系备注 -->
+        This is my personal website. 介系我滴网站
+
+        <button id="press">Press Me</button>
+        <button id="about">About Me</button>
+        <button id="contact">Contact Me</button>
+
+        <p>My self-introduction is one sentence. ↓me facing any problems</p>
+        <img src="me.jpg" alt="My photo"/>
+    </div>
+
     <div class="box">
         <div>One</div>
         <div>Two</div>
-        <div>Three
-            <br>first line
-            <br>second line
-        </div>
+        <div>Three<br>first line<br>second line</div>
     </div>
 
     <div class="grid-container">
-        <div class="grid-item1">1</div>
+        <div id="my_work1" class="grid-item1">My work 1</div>
         <div class="grid-item2">2</div>
         <div class="grid-item3">3</div>
     </div>
+
+    <!-- 放在最后，确保 DOM 元素已加载 -->
+    <script src="code.js"></script>
+</body>    
 </html>
 
 
