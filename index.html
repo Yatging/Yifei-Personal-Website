@@ -1,22 +1,47 @@
 <html>
-    <head>
-        <link href="style.css" rel="stylesheet"/>
 
-    </head>
-    <body>
+<head>
+    <link href="style.css" rel="stylesheet" />
+
+</head>
+
+<body>
     <h1>This is a title</h1>
 
-    <div id="main">
-        <!-- 介系备注 -->
-        This is my personal website. 介系我滴网站
+    <header>
+        <!-- navigation bar-->
+        <p>HUANG Yifei</p>
 
-        <button id="press">Press Me</button>
-        <button id="about">About Me</button>
-        <button id="contact">Contact Me</button>
 
-        <p>My self-introduction is one sentence. ↓me facing any problems</p>
-        <img src="me.jpg" alt="My photo"/>
-    </div>
+        <div id="main">
+            <!-- 介系备注 -->
+            <nav id="nav">
+                <ul>
+                    <p>HUANG Yifei</p>
+                    <button id="press">Press Me</button>
+                    <button id="about">About Me</button>
+                    <button id="contact">Contact Me</button>
+                </ul>
+            </nav>
+
+            <!--photo + self intro-->
+            <div id="main" class="flex-container">
+                <img src="me.jpg" alt="My photo" />
+                <div id="main" class="text-container">
+                    <div>
+                        <h1>Welcome to my website</h1>
+                        <p>I am a student in School of Creative Media, City University of Hong Kong. I'm interested in photography, graphic communication and data visualization. I have internship experience in field of Marketing and News industry.</p>
+                        <a class="intro_button" href="">Follow me on Instagram</a>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <p>My self-introduction is one sentence. ↓me facing any problems</p>
+
+        </div>
+    </header>
 
     <div class="box">
         <div>One</div>
@@ -32,8 +57,6 @@
 
     <!-- 放在最后，确保 DOM 元素已加载 -->
     <script src="code.js"></script>
-</body>    
+</body>
+
 </html>
-
-
-

@@ -2,11 +2,13 @@
     color: black;
     margin: 10px;
     font: 14px Tahoma;
-    background-color: antiquewhite;
+
 
 }
-button.subpage{
+button{
     color: black;
+    border-radius: 0.4em;
+    background-color: antiquewhite;
 }
 .box{
     display: flex;
@@ -43,4 +45,60 @@ button.subpage{
     grid-column-end: 4;
     grid-row-start: 1;
     grid-row-end: 3;
+}
+
+header, section{
+    margin: 2em auto;
+    width: min(75em, 100%);
+    background-color: antiquewhite;
+    padding: min(2em, 15%);
+    border-radius: 1em;
+}
+
+nav{
+    margin: 1em auto 1em auto;
+    width: min(1000px, 100%);
+    font-size: 1.5em;
+    background-color: antiquewhite;
+}
+
+nav ul{
+    display: flex;
+    align-items: center;
+    list-style-type: none;
+    gap: 2em;
+    background-color: antiquewhite;
+}
+
+nav p:first-child{
+    margin-right: auto;
+    background-color: antiquewhite;
+}
+
+.flex-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 3em;
+}
+
+h1{
+    font-size: 2em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.intro_button{
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    background-color: orange;
+    padding: .75em 1em;
+    margin-top: 0em;
+    border-radius: 1em;
+    font-weight: 600;
+}
+
+.text-container{
+    flex:0 100mm;
 }
