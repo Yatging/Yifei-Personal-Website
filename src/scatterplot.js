@@ -1,26 +1,26 @@
 // 示例数据（Article 类型加了 url 字段）
 const data = [
-    { year: 2018, type: "Article", count: 5, url: "https://example.com/article2018" },
-    { year: 2018, type: "Drawing", count: 3 },
-    { year: 2019, type: "Article", count: 8, url: "https://example.com/article2019" },
-    { year: 2019, type: "Video", count: 2 },
-    { year: 2019, type: "Drawing", count: 7 },
-    { year: 2020, type: "Article", count: 12, url: "https://example.com/article2020" },
-    { year: 2020, type: "Video", count: 5 },
-    { year: 2020, type: "Music", count: 1 },
-    { year: 2021, type: "Article", count: 6, url: "https://example.com/article2021" },
-    { year: 2021, type: "Video", count: 9 },
-    { year: 2021, type: "Music", count: 4 },
-    { year: 2022, type: "Article", count: 10, url: "https://example.com/article2022" },
-    { year: 2022, type: "Video", count: 7 },
-    { year: 2022, type: "Music", count: 3 },
-    { year: 2023, type: "Article", count: 15, url: "https://example.com/article2023" },
-    { year: 2023, type: "Video", count: 12 },
-    { year: 2023, type: "Music", count: 6 },
-    { year: 2024, type: "Article", count: 9, url: "https://example.com/article2024" },
-    { year: 2024, type: "Video", count: 8 },
-    { year: 2024, type: "Music", count: 2 },
-    { year: 2024, type: "Drawing", count: 4 }
+    { year: 2019, type: "Article", count: 5, url: "https://epaper.tkww.hk/a/202507/20/AP687bfbc0e4b0e169b1368fc8.html" },
+    { year: 2019, type: "Drawing", count: 3 },
+    { year: 2020, type: "Article", count: 8, url: "https://epaper.tkww.hk/a/202508/02/AP688d1f46e4b0f2e74393ad64.html" },
+    { year: 2020, type: "Video", count: 2 },
+    { year: 2020, type: "Drawing", count: 7 },
+    { year: 2021, type: "Article", count: 12, url: "https://epaper.tkww.hk/a/202508/08/AP68950862e4b0f2e74393e5b4.html" },
+    { year: 2021, type: "Video", count: 5 },
+    { year: 2021, type: "Music", count: 1 },
+    { year: 2022, type: "Article", count: 6, url: "https://epaper.tkww.hk/a/202508/09/AP689659bee4b0f2e74393f057.html" },
+    { year: 2022, type: "Video", count: 9 },
+    { year: 2022, type: "Music", count: 4 },
+    { year: 2023, type: "Article", count: 10, url: "https://epaper.tkww.hk/a/202508/09/AP689659d5e4b0f2e74393f05b.html" },
+    { year: 2023, type: "Video", count: 7 },
+    { year: 2023, type: "Music", count: 3 },
+    { year: 2024, type: "Article", count: 15, url: "https://www.tkww.hk/a/202507/22/AP687ededce4b0e169b136a962.html" },
+    { year: 2024, type: "Video", count: 12, url:"https://www.tkww.hk/a/202508/05/AP6891bc2ee4b0f2e74393ceac.html" },
+    { year: 2024, type: "Music", count: 6 },
+    { year: 2025, type: "Article", count: 9, url: "https://www.tkww.hk/a/202507/13/AP6872fdade4b0e169b1365535.html" },
+    { year: 2025, type: "Video", count: 8 ,url:"https://youth.tkww.hk/a/202507/27/AP6885f1a4e4b0f2e7439376fc.html" },
+    { year: 2025, type: "Music", count: 2 },
+    { year: 2025, type: "Drawing", count: 4 }
 ];
 
 // 图表尺寸
@@ -50,7 +50,7 @@ svg.append("text")
     .attr("text-anchor", "middle")
     .style("font-size", "14px")
     .style("fill", "#555")
-    .text("Dot size = number of works; Color = work type; Click Article dots to read");
+    .text("Dot size = number of works; Color = work type; Try to click dots to read");
 
 // 主绘图区
 const g = svg.append("g")
@@ -114,7 +114,7 @@ g.selectAll(".dot")
   .data(data)
   .enter()
   .append("a")
-  .attr("xlink:href", d => d.type === "Article" ? d.url : null)
+  .attr("xlink:href", d => d.url ? d.url : null)
   .attr("target", "_blank")
   .append("circle")
   .attr("class", "dot")
