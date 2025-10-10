@@ -1,0 +1,159 @@
+// 示例数据（Article 类型加了 url 字段）
+const data = [
+    { year: 2018, type: "Article", count: 5, url: "https://example.com/article2018" },
+    { year: 2018, type: "Drawing", count: 3 },
+    { year: 2019, type: "Article", count: 8, url: "https://example.com/article2019" },
+    { year: 2019, type: "Video", count: 2 },
+    { year: 2019, type: "Drawing", count: 7 },
+    { year: 2020, type: "Article", count: 12, url: "https://example.com/article2020" },
+    { year: 2020, type: "Video", count: 5 },
+    { year: 2020, type: "Music", count: 1 },
+    { year: 2021, type: "Article", count: 6, url: "https://example.com/article2021" },
+    { year: 2021, type: "Video", count: 9 },
+    { year: 2021, type: "Music", count: 4 },
+    { year: 2022, type: "Article", count: 10, url: "https://example.com/article2022" },
+    { year: 2022, type: "Video", count: 7 },
+    { year: 2022, type: "Music", count: 3 },
+    { year: 2023, type: "Article", count: 15, url: "https://example.com/article2023" },
+    { year: 2023, type: "Video", count: 12 },
+    { year: 2023, type: "Music", count: 6 },
+    { year: 2024, type: "Article", count: 9, url: "https://example.com/article2024" },
+    { year: 2024, type: "Video", count: 8 },
+    { year: 2024, type: "Music", count: 2 },
+    { year: 2024, type: "Drawing", count: 4 }
+];
+
+// 图表尺寸
+const margin = { top: 80, right: 180, bottom: 60, left: 80 };
+const width = 800 - margin.left - margin.right;
+const height = 500 - margin.top - margin.bottom;
+
+// 创建 SVG
+const svg = d3.select("#vis-scatterplot")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom);
+
+// 标题
+svg.append("text")
+    .attr("x", (width + margin.left + margin.right) / 2)
+    .attr("y", 30)
+    .attr("text-anchor", "middle")
+    .style("font-size", "20px")
+    .style("font-weight", "bold")
+    .text("Creative Work Distribution Over Years");
+
+// 副标题
+svg.append("text")
+    .attr("x", (width + margin.left + margin.right) / 2)
+    .attr("y", 55)
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px")
+    .style("fill", "#555")
+    .text("Dot size = number of works; Color = work type; Click Article dots to read");
+
+// 主绘图区
+const g = svg.append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+// 横轴：年份
+const years = [...new Set(data.map(d => d.year))];
+const xScale = d3.scalePoint()
+    .domain(years)
+    .range([0, width])
+    .padding(0.5);
+
+const xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d"));
+
+// 纵轴：作品类型
+const types = [...new Set(data.map(d => d.type))];
+const yScale = d3.scalePoint()
+    .domain(types)
+    .range([0, height])
+    .padding(0.5);
+
+// 半径比例尺
+const rScale = d3.scaleSqrt()
+    .domain(d3.extent(data, d => d.count))
+    .range([3, 20]);
+
+// 颜色比例尺
+const colorScale = d3.scaleOrdinal()
+    .domain(types)
+    .range(d3.schemeCategory10);
+
+// 添加 X 轴
+g.append("g")
+    .attr("transform", `translate(0,${height})`)
+    .call(xAxis);
+
+g.append("text")
+    .attr("class", "axis-label")
+    .attr("x", width / 2)
+    .attr("y", height + 40)
+    .style("text-anchor", "middle")
+    .text("Year");
+
+// 添加 Y 轴
+g.append("g").call(d3.axisLeft(yScale));
+
+g.append("text")
+    .attr("class", "axis-label")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -height / 2)
+    .attr("y", -70)   // 往左移
+    .style("text-anchor", "middle")
+    .text("Work Type");
+
+// tooltip
+const tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip");
+
+// 绘制散点（Article 点加链接）
+g.selectAll(".dot")
+  .data(data)
+  .enter()
+  .append("a")
+  .attr("xlink:href", d => d.type === "Article" ? d.url : null)
+  .attr("target", "_blank")
+  .append("circle")
+  .attr("class", "dot")
+  .attr("cx", d => xScale(d.year))
+  .attr("cy", d => yScale(d.type))
+  .attr("r", d => rScale(d.count))
+  .attr("fill", d => colorScale(d.type))
+  .attr("stroke", "#fff")
+  .attr("stroke-width", 1)
+  .on("mouseover", function (event, d) {
+      tooltip.transition().duration(200).style("opacity", 0.9);
+      tooltip.html(
+          `Year: ${d.year}<br/>Type: ${d.type}<br/>Count: ${d.count}`
+          + (d.type === "Article" ? "<br/><em>Click to read article</em>" : "")
+      )
+      .style("left", (event.pageX + 10) + "px")
+      .style("top", (event.pageY - 28) + "px");
+  })
+  .on("mouseout", function () {
+      tooltip.transition().duration(500).style("opacity", 0);
+  });
+
+// 图例
+const legend = svg.append("g")
+    .attr("transform", `translate(${width + margin.left + 20}, ${margin.top})`);
+
+types.forEach((t, i) => {
+    const legendRow = legend.append("g")
+        .attr("transform", `translate(0, ${i * 25})`);
+
+    legendRow.append("rect")
+        .attr("width", 18)
+        .attr("height", 18)
+        .attr("fill", colorScale(t));
+
+    legendRow.append("text")
+        .attr("x", 25)
+        .attr("y", 14)
+        .text(t)
+        .style("font-size", "12px")
+        .attr("alignment-baseline", "middle");
+});

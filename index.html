@@ -2,6 +2,8 @@
 
 <head>
     <link href="style.css" rel="stylesheet" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
 
 </head>
 
@@ -10,14 +12,13 @@
 
     <header>
         <!-- navigation bar-->
-        <p>HUANG Yifei</p>
 
 
         <div id="main">
             <!-- 介系备注 -->
             <nav id="nav">
                 <ul>
-                    <p>HUANG Yifei</p>
+                    <h1>Peter HUANG Yifei</h1>
                     <button id="press">Press Me</button>
                     <button id="about">About Me</button>
                     <button id="contact">Contact Me</button>
@@ -30,20 +31,27 @@
                 <div id="main" class="text-container">
                     <div>
                         <h1>Welcome to my website</h1>
-                        <p>I am a student in School of Creative Media, City University of Hong Kong. I'm interested in photography, graphic communication and data visualization. I have internship experience in field of Marketing and News industry.</p>
-                        <a class="intro_button" href="">Follow me on Instagram</a>
+                        <p>I’m currently studying at the School of Creative Media, City University of Hong Kong, with a strong interest in photography, graphic communication, and data visualization. I’ve gained hands-on experience through internships in both the marketing and news industries, which have deepened my understanding of visual storytelling and audience engagement.</p>
+                        <a class="intro_button" href="https://www.instagram.com/yatging_">Follow me on Instagram</a>
                     </div>
                 </div>
 
 
             </div>
 
-            <p>My self-introduction is one sentence. ↓me facing any problems</p>
+            <p>↑me facing any problems</p>
 
         </div>
     </header>
 
-    <div class="box">
+    <section id="vis-scatterplot">
+        This is my section 
+    </section>
+
+    <script src="code.js"></script>
+    <script src="src/scatterplot.js"></script>
+
+   <!-- <div class="box">
         <div>One</div>
         <div>Two</div>
         <div>Three<br>first line<br>second line</div>
@@ -55,7 +63,7 @@
         <div class="grid-item3">3</div>
     </div>
 
-    <!-- 放在最后，确保 DOM 元素已加载 -->
+    放在最后，确保 DOM 元素已加载 --> 
     <script src="code.js"></script>
 </body>
 
