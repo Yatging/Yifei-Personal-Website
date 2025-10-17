@@ -1,3 +1,10 @@
+html {
+    background-color: white;
+    scroll-behavior: smooth;
+}
+
+
+
 *{
     color: black;
     margin: 10px;

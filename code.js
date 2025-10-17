@@ -3,10 +3,10 @@ var title = document.querySelector("h1");
 title.innerHTML = "Peter HUANG Yifei's Personal Website";
 
 
-var pressButton = document.querySelector("#press");
-pressButton.addEventListener("click", function() {
-    alert("Pressed Successfully");
-});
+// var pressButton = document.querySelector("#press");
+// pressButton.addEventListener("click", function() {
+//     alert("Pressed Successfully");
+// });
 
 var aboutButton = document.querySelector("#about");
 aboutButton.addEventListener("click", function() {

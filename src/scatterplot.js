@@ -124,19 +124,19 @@ g.selectAll(".dot")
   .attr("fill", d => colorScale(d.type))
   .attr("stroke", "#fff")
   .attr("stroke-width", 1)
-  .on("mouseover", function (event, d) {
-      tooltip.transition().duration(200).style("opacity", 0.9);
-      tooltip.html(
-          `Year: ${d.year}<br/>Type: ${d.type}<br/>Count: ${d.count}`
-          + (d.type === "Article" ? "<br/><em>Click to read article</em>" : "")
-      )
-      .style("left", (event.pageX + 10) + "px")
-      .style("top", (event.pageY - 28) + "px");
-  })
-  .on("mouseout", function () {
-      tooltip.transition().duration(500).style("opacity", 0);
-  });
-
+//   .on("mouseover", function (event, d) {
+//       tooltip.transition().duration(200).style("opacity", 0.9);
+//       tooltip.html(
+//           `Year: ${d.year}<br/>Type: ${d.type}<br/>Count: ${d.count}`
+//           + (d.type === "Article" ? "<br/><em>Click to read article</em>" : "")
+//       )
+//       .style("left", (event.pageX + 10) + "px")
+//       .style("top", (event.pageY - 28) + "px");
+//   })
+//   .on("mouseout", function () {
+//       tooltip.transition().duration(500).style("opacity", 0);
+//   });
+//左下角显示详情
 // 图例
 const legend = svg.append("g")
     .attr("transform", `translate(${width + margin.left + 20}, ${margin.top})`);
