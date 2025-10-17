@@ -1,4 +1,5 @@
 // 示例数据（Article 类型加了 url 字段）
+(function(){
 const data = [
     { year: 2019, type: "Article", count: 5, url: "https://epaper.tkww.hk/a/202507/20/AP687bfbc0e4b0e169b1368fc8.html" },
     { year: 2019, type: "Drawing", count: 3 },
@@ -157,3 +158,5 @@ types.forEach((t, i) => {
         .style("font-size", "12px")
         .attr("alignment-baseline", "middle");
 });
+})();
+//用function包起来 里边的变量就不怕重复了

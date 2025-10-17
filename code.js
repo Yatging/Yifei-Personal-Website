@@ -1,7 +1,8 @@
 
-var title = document.querySelector("h1");
-title.innerHTML = "Peter HUANG Yifei's Personal Website";
-
+var title = document.querySelector("#homepage-title");
+if (title) {
+    title.innerHTML = "Peter HUANG Yifei's Personal Website";
+}
 
 // var pressButton = document.querySelector("#press");
 // pressButton.addEventListener("click", function() {

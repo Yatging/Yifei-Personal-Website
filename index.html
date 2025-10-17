@@ -8,7 +8,8 @@
 </head>
 
 <body>
-    <h1>This is a title</h1>
+    <h1 id="homepage-title">Peter HUANG Yifei's Personal Website</h1>
+
 
     <header>
         <!-- navigation bar-->
@@ -20,7 +21,7 @@
                 <ul>
                     <h1>Peter HUANG Yifei</h1>
                     <a id="press" href="#vis-newplot">Press Me to Jump to the Bottom</a>
-                    <button id="about">About Me</button>
+                    <a id="subpage" href="subpage/my_work.html">My Work</a>
                     <button id="contact">Contact Me</button>
                 </ul>
             </nav>
@@ -32,8 +33,8 @@
                     <div>
                         <h1>Welcome to my website</h1>
                         <p>I’m currently studying at the School of Creative Media, City University of Hong Kong, with a strong interest in photography, graphic communication, and data visualization. I’ve gained hands-on experience through internships in both the marketing and news industries, which have deepened my understanding of visual storytelling and audience engagement.</p>
-                        <a class="intro_button" href="https://www.instagram.com/yatging_">Follow me on Instagram</a>
-                        <a class="intro_button" href="https://www.linkedin.com/in/yifei-huang-a8295a2ba?utm_">Follow me on LinkedIn</a>
+                        <a class="intro_button instagram" href="https://www.instagram.com/yatging_">Follow me on Instagram</a>
+                        <a class="intro_button linkedin" href="https://www.linkedin.com/in/yifei-huang-a8295a2ba?utm_">Follow me on LinkedIn</a>
                     </div>
                 </div>
 
@@ -53,9 +54,24 @@
         real data! 
     </section>
 
+    <section id="vis-radialtree">
+       <h2>About Me — Radial Tree Visualization</h2>
+       <div id="radialtree-legend" style="margin-top: 2em;"></div>
+    </section>
+
+    <section id="vis-fridayescape">
+       <h2>My Friday Escape Routes to Guangzhou</h2>
+       </section>
+    
+
+
+
     <script src="code.js"></script>
     <script src="src/scatterplot.js"></script>
     <script src="src/newplot.js"></script>
+    <script src="src/radialTree.js"></script>
+    <script src="src/fridayEscapeTree.js"></script>
+
 
    <!-- <div class="box">
         <div>One</div>
