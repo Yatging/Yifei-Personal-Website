@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
   svg.call(zoom);
 
   // ✅ 使用完整版中国地图数据，显示所有省界
-  d3.json("https://geo.datav.aliyun.com/areas/bound/100000.json").then(function (china) {
+  d3.json("data/china.json").then(function (china) {
     // ✅ 绘制地图边界
     mapLayer.selectAll("path")
       .data(china.features)
