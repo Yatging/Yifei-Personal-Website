@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const projection = d3.geoMercator()
     .center([110, 35]) // 向东偏移一点，确保东部省份显示完整
     .scale(800)
-    .translate([width / 2 - 50, height / 2]);
+    .translate([width / 2 , height / 2]);
 
   const path = d3.geoPath().projection(projection);
 
@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
   svg.call(zoom);
 
   // ✅ 使用完整版中国地图数据，显示所有省界
-  d3.json("https://geo.datav.aliyun.com/areas_v2/bound/100000_full.json").then(function (china) {
+  d3.json("https://geo.datav.aliyun.com/areas/bound/100000.json").then(function (china) {
     // ✅ 绘制地图边界
     mapLayer.selectAll("path")
       .data(china.features)

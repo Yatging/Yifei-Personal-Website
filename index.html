@@ -2,7 +2,7 @@
 
 <head>
     <link href="style.css" rel="stylesheet" />
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
 
 
 </head>
@@ -85,7 +85,8 @@
     <section id="vis-dotmap" style="padding: 60px 0; background-color: #f4f7fa;">
   <div class="container" style="max-width: 900px; margin: auto; text-align: center;">
     <h2>Places I Have Visited in China</h2>
-    <div id="dotmap-container" style="margin-top: 40px;"></div>
+    <div id="dotmap-container" style="width: 100%; height: 600px;"></div>
+
   </div>
 </section>
 
@@ -118,6 +119,8 @@
 
     放在最后，确保 DOM 元素已加载 -->
     <script src="code.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson-client@3"></script>
 </body>
 
 </html>
