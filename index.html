@@ -1,130 +1,105 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <link href="style.css" rel="stylesheet" />
-    
-
-
+  <meta charset="UTF-8">
+  <title>Peter HUANG Yifei's Personal Website</title>
+  <link href="style.css" rel="stylesheet" />
 </head>
 
 <body>
-    <h1 id="homepage-title">Peter HUANG Yifei's Personal Website</h1>
+  <h1 id="homepage-title">Peter HUANG Yifei's Personal Website</h1>
 
+  <header>
+    <!-- navigation bar-->
+    <div class="main">
+      <nav id="nav">
+        <ul>
+          <h1>Peter HUANG Yifei</h1>
+          <a id="press" href="#vis-fridayescape">Press to help me get home</a>
+          <a id="subpage" href="subpage/my_work.html">My Work</a>
+          <button id="contact">Contact Me</button>
+        </ul>
+      </nav>
 
-    <header>
-        <!-- navigation bar-->
-
-
-        <div id="main">
-            <!-- 介系备注 -->
-            <nav id="nav">
-                <ul>
-                    <h1>Peter HUANG Yifei</h1>
-                    <a id="press" href="#vis-fridayescape">Press to help me get home</a>
-                    <a id="subpage" href="subpage/my_work.html">My Work</a>
-                    <button id="contact">Contact Me</button>
-                </ul>
-            </nav>
-
-            <!--photo + self intro-->
-            <div id="main" class="flex-container">
-                <img src="me.jpg" alt="My photo" />
-                <div id="main" class="text-container">
-                    <div>
-                        <h1>Welcome to my website</h1>
-                        <p>I’m currently studying at the School of Creative Media, City University of Hong Kong, with a
-                            strong interest in photography, graphic communication, and data visualization. I’ve gained
-                            hands-on experience through internships in both the marketing and news industries, which
-                            have deepened my understanding of visual storytelling and audience engagement.</p>
-                        <a class="intro_button instagram" href="https://www.instagram.com/yatging_">Follow me on
-                            Instagram</a>
-                        <a class="intro_button linkedin"
-                            href="https://www.linkedin.com/in/yifei-huang-a8295a2ba?utm_">Follow me on LinkedIn</a>
-                    </div>
-                </div>
-
-
-            </div>
-
-            <p>↑me facing any problems</p>
-
-        </div>
-    </header>
-
-    <section id="vis-scatterplot">
-        random data with real link
-    </section>
-
-    <section id="vis-newplot">
-        real data!
-    </section>
-
-    <section id="vis-radialtree">
-        <h2>About Me — Radial Tree Visualization</h2>
-        <div id="radialtree-legend" style="margin-top: 2em;"></div>
-    </section>
-
-    <section id="vis-fridayescape">
-        <h2>My Friday Escape Routes to Guangzhou</h2>
-    </section>
-
-    <section id="courses-network" style="padding: 60px 0; background-color: #f4f7fa;">
-        <div class="container" style="max-width: 900px; margin: auto; text-align: center;">
-            <h2 style="font-family: 'Georgia', serif; font-size: 32px; margin-bottom: 10px;">My Knowledge Network</h2>
-            <p style="font-size: 16px; color: #555;">
-                These are courses I have taken in the university.
+      <!--photo + self intro-->
+      <div class="flex-container">
+        <img src="me.jpg" alt="My photo" />
+        <div class="text-container">
+          <div>
+            <h1>Welcome to my website</h1>
+            <p>
+              I’m currently studying at the School of Creative Media, City University of Hong Kong,
+              with a strong interest in photography, graphic communication, and data visualization.
+              I’ve gained hands-on experience through internships in both the marketing and news industries,
+              which have deepened my understanding of visual storytelling and audience engagement.
             </p>
-            <div id="network-graph" style="margin-top: 40px;"></div>
+            <a class="intro_button instagram" href="https://www.instagram.com/yatging_">Follow me on Instagram</a>
+            <a class="intro_button linkedin" href="https://www.linkedin.com/in/yifei-huang-a8295a2ba?utm_">Follow me on LinkedIn</a>
+          </div>
         </div>
-    </section>
+      </div>
 
-    <section id="course-matrix">
-        <div id="adjacency-matrix"></div>
-    </section>
-
-    <section id="vis-dotmap" style="padding: 60px 0; background-color: #f4f7fa;">
-  <div class="container" style="max-width: 900px; margin: auto; text-align: center;">
-    <h2>Places I Have Visited in China</h2>
-    <div id="dotmap-container" style="width: 100%; height: 600px;"></div>
-  </div>
-</section>
-
-<section id="visitors">
-  <div id="visitor-dotmap" style="width:100%; height:600px;"></div>
-</section>
-
-
-
-    <script src="code.js"></script>
-    <script src="src/scatterplot.js"></script>
-    <script src="src/newplot.js"></script>
-    <script src="src/radialTree.js"></script>
-    <script src="src/fridayEscapeTree.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="src/courses-network.js"></script>
-    <script src="src/adjacency-matrix.js"></script>
-    <script src="src/dotmap.js"></script>
-    <script src="src/visitorDotmap.js"></script>
-    
-
-
-
-    <!-- <div class="box">
-        <div>One</div>
-        <div>Two</div>
-        <div>Three<br>first line<br>second line</div>
+      <p>↑me facing any problems</p>
     </div>
+  </header>
 
-    <div class="grid-container">
-        <div id="my_work1" class="grid-item1">My work 1</div>
-        <div class="grid-item2">2</div>
-        <div class="grid-item3">3</div>
+  <section id="vis-scatterplot">
+    random data with real link
+  </section>
+
+  <section id="vis-newplot">
+    real data!
+  </section>
+
+  <section id="vis-radialtree">
+    <h2>About Me — Radial Tree Visualization</h2>
+    <div id="radialtree-legend" style="margin-top: 2em;"></div>
+  </section>
+
+  <section id="vis-fridayescape">
+    <h2>My Friday Escape Routes to Guangzhou</h2>
+  </section>
+
+  <section id="courses-network" style="padding: 60px 0; background-color: #f4f7fa;">
+    <div class="container" style="max-width: 900px; margin: auto; text-align: center;">
+      <h2 style="font-family: 'Georgia', serif; font-size: 32px; margin-bottom: 10px;">My Knowledge Network</h2>
+      <p style="font-size: 16px; color: #555;">
+        These are courses I have taken in the university.
+      </p>
+      <div id="network-graph" style="margin-top: 40px;"></div>
     </div>
+  </section>
 
-    放在最后，确保 DOM 元素已加载 -->
-    <script src="code.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://unpkg.com/topojson-client@3"></script>
+  <section id="course-matrix">
+    <div id="adjacency-matrix"></div>
+  </section>
+
+  <section id="vis-dotmap" style="padding: 60px 0; background-color: #f4f7fa;">
+    <div class="container" style="max-width: 900px; margin: auto; text-align: center;">
+      <h2>Places I Have Visited in China</h2>
+      <div id="dotmap-container" style="width: 100%; height: 800px;"></div>
+      改了8版代码都有bug被迫用回第一版
+    </div>
+  </section>
+
+  <section id="visitors">
+    <div id="visitor-dotmap" style="width:100%; height:600px;"></div>
+    整不出来了后边慢慢搞吧
+  </section>
+
+  <!-- ✅ 先加载 D3 和 TopoJSON -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
+
+  <!-- ✅ 再加载你自己的脚本 -->
+  <script src="code.js"></script>
+  <script src="src/scatterplot.js"></script>
+  <script src="src/newplot.js"></script>
+  <script src="src/radialTree.js"></script>
+  <script src="src/fridayEscapeTree.js"></script>
+  <script src="src/courses-network.js"></script>
+  <script src="src/adjacency-matrix.js"></script>
+  <script src="src/dotmap.js"></script>
+  <script src="src/visitorDotmap.js"></script>
 </body>
-
 </html>

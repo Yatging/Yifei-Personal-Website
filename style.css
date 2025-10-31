@@ -132,3 +132,10 @@ h1{
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   cursor: grab;
 }
+#vis-dotmap {
+  padding: 60px 0 120px 0; /* 上下留白，底部多留点 */
+}
+
+#visitors {
+  padding: 60px 0; /* 确保最后一个 section 也有间距 */
+}
