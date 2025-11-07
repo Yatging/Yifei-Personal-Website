@@ -174,7 +174,7 @@ function initFilterControls() {
 
   // 全选/全不选按钮（类别）
   const groupSelectAllBtn = document.createElement("button");
-  groupSelectAllBtn.textContent = "Groups All (Un)Select";
+  groupSelectAllBtn.textContent = "Groups All (De)Select";
   groupSelectAllBtn.style.marginLeft = "12px";
   groupSelectAllBtn.addEventListener("click", () => {
     if (selectedGroups.size === groups.length) {
@@ -213,7 +213,7 @@ function initFilterControls() {
 
   // 全选/全不选按钮（年份）
   const yearSelectAllBtn = document.createElement("button");
-  yearSelectAllBtn.textContent = "Years All (Un)Select";
+  yearSelectAllBtn.textContent = "Years All (De)Select";
   yearSelectAllBtn.style.marginLeft = "12px";
   yearSelectAllBtn.addEventListener("click", () => {
     if (selectedYears.size === years.length) {
