@@ -243,5 +243,65 @@ svg.on("mousedown.cancel", (event) => {
   mousemoveCancel();
   mouseupCancel();
 });
+d3.json("data/china.json").then(function (china) {
+  // 绘制地图边界
+  mapLayer.selectAll("path")
+    .data(china.features)
+    .enter()
+    .append("path")
+    .attr("d", path)
+    .attr("fill", d => visitedProvinces.has(d.properties.name) ? "rgba(255, 235, 150, 0.6)" : "#f0f0f0")
+    .attr("stroke", "#666")
+    .attr("stroke-width", 0.6);
+
+  // 添加点位
+  points = pointLayer.selectAll("circle")
+    .data(visitedPlaces)
+    .enter()
+    .append("circle")
+    .attr("cx", d => projection(d.coords)[0])
+    .attr("cy", d => projection(d.coords)[1])
+    .attr("r", 8)
+    .attr("fill", "red")
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 1)
+    .style("cursor", "pointer")
+    .each(function(d){ d.hovered = false; });
+
+  // 添加标签
+  labels = labelLayer.selectAll("text")
+    .data(visitedPlaces)
+    .enter()
+    .append("text")
+    .attr("x", d => projection(d.coords)[0])
+    .attr("y", d => projection(d.coords)[1] + 25)
+    .attr("text-anchor", "middle")
+    .attr("font-size", "12px")
+    .attr("fill", "#333")
+    .style("display", "none")
+    .text(d => d.name);
+
+  // 点位交互
+  points
+    .on("mouseover", function (event, d) {
+      d.hovered = true;
+      const t = d3.zoomTransform(svg.node());
+      d3.select(this).attr("r", 12 / t.k).attr("fill", "orange");
+      labels.filter(l => l.name === d.name)
+        .style("display", "block")
+        .attr("y", projection(d.coords)[1] + (25 / t.k))
+        .attr("font-size", `${12 / t.k}px`);
+    })
+    .on("mouseout", function (event, d) {
+      d.hovered = false;
+      const t = d3.zoomTransform(svg.node());
+      d3.select(this).attr("r", 8 / t.k).attr("fill", "red");
+      labels.filter(l => l.name === d.name).style("display", "none");
+    });
+
+  // ✅ 在这里调用 zoom
+  svg.call(zoom);
+});
+
 
 });
