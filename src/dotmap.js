@@ -183,10 +183,10 @@ function updateSelectedList() {
   header.style.display = "flex";
   header.style.justifyContent = "space-between";
   const title = document.createElement("div");
-  title.textContent = "已选中的城市";
+  title.textContent = "Selected Cities";
   title.style.fontWeight = "600";
   const clearBtn = document.createElement("button");
-  clearBtn.textContent = "清空";
+  clearBtn.textContent = "Clear Up";
   clearBtn.addEventListener("click", () => {
     selectedCities.clear();
     updateSelectedList();
