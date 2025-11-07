@@ -78,25 +78,26 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================
   // 缩放与平移（定义但不立即调用）
   // =========================
-  const zoom = d3.zoom()
-    .scaleExtent([0.5, 10])
-    .on("zoom", (event) => {
-      const { transform } = event;
-      g.attr("transform", transform);
+const zoom = d3.zoom()
+  .scaleExtent([0.5, 10])
+  .on("zoom", (event) => {
+    const { transform } = event;
+    g.attr("transform", transform);
 
-      // 点位半径随缩放调整
+    if (points) {
       points.attr("r", d => {
         const base = d.hovered ? 12 : 8;
         return base / transform.k;
       });
+    }
 
-      // 文字缩放逻辑与点保持一致，并且距离点更远
+    if (labels) {
       labels
         .attr("x", d => projection(d.coords)[0])
         .attr("y", d => projection(d.coords)[1] + (25 / transform.k))
         .attr("font-size", `${12 / transform.k}px`);
-    });
-
+    }
+  });
   // =========================
   // 框选功能（Shift+拖拽）
   // =========================
@@ -280,6 +281,8 @@ d3.json("data/china.json").then(function (china) {
     .attr("fill", "#333")
     .style("display", "none")
     .text(d => d.name);
+
+    svg.call(zoom);
 
   // 点位交互
   points
