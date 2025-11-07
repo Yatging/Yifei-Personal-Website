@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
     { name: "Jilin City", coords: [126.5496, 43.8378], province: "吉林" } // ✅ 新增吉林市
   ];
 
-  const visitedProvinces = new Set(visitedPlaces.map(p => p.province));
+ const visitedProvinces = new Set(visitedPlaces.map(p => p.province));
 
   const width = 900;
   const height = 800;
