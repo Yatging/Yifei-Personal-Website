@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const visitedProvinces = new Set(visitedPlaces.map(p => p.province));
 
-  const width = 1000;
+  const width = 900;
   const height = 800;
 
   const svg = d3
@@ -78,27 +78,61 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================
   // 缩放与平移
   // =========================
-  const zoom = d3.zoom()
-    .scaleExtent([0.5, 10])
-    .on("zoom", (event) => {
-      const { transform } = event;
-      g.attr("transform", transform);
+const zoom = d3.zoom()
+  .scaleExtent([0.5, 10])
+  .on("zoom", (event) => {
+    const { transform } = event;
+    g.attr("transform", transform);
 
-      // 点位半径随缩放调整
-      points.attr("r", d => {
-        const base = d.hovered ? 12 : 8;
-        return base / transform.k;
-      });
-
-      labels
-        .attr("x", d => projection(d.coords)[0])
-        .attr("y", d => projection(d.coords)[1] + 15 / transform.k)
-        .attr("font-size", `${12 / transform.k}px`);
+    // 点位半径随缩放调整
+    points.attr("r", d => {
+      const base = d.hovered ? 12 : 8;
+      return base / transform.k;
     });
 
-  svg.call(zoom);
+    // 文字缩放逻辑与点保持一致，并且距离点更远
+    labels
+      .attr("x", d => projection(d.coords)[0])
+      .attr("y", d => projection(d.coords)[1] + (25 / transform.k)) // ✅ 距离加大
+      .attr("font-size", `${12 / transform.k}px`); // ✅ 与点逻辑一致
+  });
+
+svg.call(zoom);
 // =========================
-// 框选功能（Shift+拖拽）
+// 点位交互：修复缩放与悬停半径冲突
+// =========================
+points
+  .on("mouseover", function (event, d) {
+    d.hovered = true;
+    const t = d3.zoomTransform(svg.node());
+    d3.select(this)
+      .transition()
+      .duration(160)
+      .attr("r", 12 / t.k) // ✅ 悬停时半径与缩放一致
+      .attr("fill", "orange");
+
+    labels
+      .filter(l => l.name === d.name)
+      .style("display", "block")
+      .attr("x", projection(d.coords)[0])
+      .attr("y", projection(d.coords)[1] + (25 / t.k)) // ✅ 距离更远
+      .attr("font-size", `${12 / t.k}px`); // ✅ 与点逻辑一致
+  })
+  .on("mouseout", function (event, d) {
+    d.hovered = false;
+    const t = d3.zoomTransform(svg.node());
+    d3.select(this)
+      .transition()
+      .duration(160)
+      .attr("r", 8 / t.k) // ✅ 恢复基础半径
+      .attr("fill", "red");
+
+    labels
+      .filter(l => l.name === d.name)
+      .style("display", "none");
+  });
+// =========================
+// 框选功能（ctrl+Shift+拖拽）
 // =========================
 let selectionRect, startPoint;
 const selectedCities = new Set();
@@ -198,7 +232,7 @@ function updateSelectedList() {
 
   if (selectedCities.size === 0) {
     const hint = document.createElement("div");
-    hint.textContent = "按住 Shift 键并拖拽以框选城市。点击列表城市可自动定位。";
+    hint.textContent = "Press and hold Ctrl+Shift together to select cities. Click a city name in the panel to pan/zoom to that city.";
     hint.style.color = "#666";
     panel.appendChild(hint);
     return;
