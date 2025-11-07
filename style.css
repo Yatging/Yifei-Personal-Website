@@ -139,3 +139,7 @@ h1{
 #visitors {
   padding: 60px 0; /* 确保最后一个 section 也有间距 */
 }
+#filter-controls label, #year-controls label {
+  display: inline-block;
+  margin-right: 12px;
+}

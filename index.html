@@ -66,12 +66,19 @@
       <p style="font-size: 16px; color: #555;">
         These are courses I have taken in the university.
       </p>
+      <input id="year-slider" type="range" min="2023" max="2025" step="1" value="2025">
+<span id="year-label">2025</span>
+
+
       <div id="network-graph" style="margin-top: 40px;"></div>
     </div>
   </section>
 
   <section id="course-matrix">
+    <div id="filter-controls"></div>
+    <div id="year-controls"></div>
     <div id="adjacency-matrix"></div>
+
   </section>
 
   <section id="vis-dotmap" style="padding: 60px 0; background-color: #f4f7fa;">

@@ -1,24 +1,24 @@
 const courses = [
-  { id: "SM1702", name: "Creative Media Studio I", group: "Basic" },
-  { id: "SM2704", name: "Creative Media Studio II", group: "Basic" },
-  { id: "SM2702", name: "Interdisciplinary Practices", group: "Theory" },
-  { id: "SM2276", name: "Music Production", group: "Workshop" },
-  { id: "SM2706", name: "Critical Theory & Soc Engag Prac", group: "Theory" },
-  { id: "SM2715", name: "Creative Coding", group: "Coding" },
-  { id: "SM3804", name: "Materials & Fabrication Studio", group: "Workshop" },
-  { id: "GE1401", name: "University English", group: "Culture" },
-  { id: "GE2413", name: "Writing for Creative Media", group: "Culture" },
-  { id: "SM2716", name: "Physical Computing & Tangible Media", group: "Coding" },
-  { id: "SDSC2004", name: "Data Visualization", group: "Coding" },
-  { id: "CS1103", name: "Media Computing", group: "Coding" },
-  { id: "GE1501", name: "Chinese Civilisation - History&Philosophy", group: "Culture" },
-  { id: "GE2132", name: "Dynamics of Chinese Cities&Architecture", group: "Culture" },
-  { id: "SM1701", name: "New Media Art", group: "Theory" },
-  { id: "SM2277", name: "Life Drawing", group: "Workshop" },
-  { id: "SM1013", name: "Introduction to Photography", group: "Workshop" },
-  { id: "SM2805", name: "Imaging Science Studio", group: "Workshop" },
-  { id: "SM3749", name: "Information Visualization", group: "Coding" },
-  { id: "SM3801", name: "Understanding Data", group: "Coding" }
+  { id: "SM1702", name: "Creative Media Studio I", group: "Basic", year:2023 },
+  { id: "SM2704", name: "Creative Media Studio II", group: "Basic", year:2024 },
+  { id: "SM2702", name: "Interdisciplinary Practices", group: "Theory", year:2024 },
+  { id: "SM2276", name: "Music Production", group: "Workshop", year:2025 },
+  { id: "SM2706", name: "Critical Theory & Soc Engag Prac", group: "Theory", year:2025 },
+  { id: "SM2715", name: "Creative Coding", group: "Coding", year:2024 },
+  { id: "SM3804", name: "Materials & Fabrication Studio", group: "Workshop", year:2025 },
+  { id: "GE1401", name: "University English", group: "Culture",year:2023 },
+  { id: "GE2413", name: "Writing for Creative Media", group: "Culture",year:2024 },
+  { id: "SM2716", name: "Physical Computing & Tangible Media", group: "Coding",year:2025 },
+  { id: "SDSC2004", name: "Data Visualization", group: "Coding",year:2024 },
+  { id: "CS1103", name: "Media Computing", group: "Coding", year:2023 },
+  { id: "GE1501", name: "Chinese Civilisation - History&Philosophy", group: "Culture", year:2023 },
+  { id: "GE2132", name: "Dynamics of Chinese Cities&Architecture", group: "Culture", year:2025 },
+  { id: "SM1701", name: "New Media Art", group: "Theory", year:2023 },
+  { id: "SM2277", name: "Life Drawing", group: "Workshop", year:2025 },
+  { id: "SM1013", name: "Introduction to Photography", group: "Workshop", year:2025 },
+  { id: "SM2805", name: "Imaging Science Studio", group: "Workshop", year:2025 },
+  { id: "SM3749", name: "Information Visualization", group: "Coding", year:2025 },
+  { id: "SM3801", name: "Understanding Data", group: "Coding",year:2024 }
 ];
 
 const links = [
@@ -191,5 +191,71 @@ svg.call(d3.drag()
     lastX = event.x;
   }));
 
+
+//新增 随时间变动
+let currentYear = +d3.select("#year-slider").node().value;
+d3.select("#year-label").text(currentYear);
+
+d3.select("#year-slider").on("input", function() {
+  currentYear = +this.value;
+  d3.select("#year-label").text(currentYear);
+  updateVisibility();
+});
+
+function updateVisibility() {
+  // 节点飞入动画
+  node.each(function(d) {
+    const circle = d3.select(this);
+    if (d.year <= currentYear) {
+      if (circle.style("opacity") == 0 || circle.style("opacity") === "") {
+        // 第一次出现：从中心飞到目标位置
+        circle
+          .attr("cx", centerX)
+          .attr("cy", centerY)
+          .attr("r", 0)
+          .style("opacity", 1)
+          .transition().duration(1000)
+          .attr("cx", d.x)
+          .attr("cy", d.y)
+          .attr("r", 10);
+      } else {
+        // 已经出现过：保持可见
+        circle.transition().duration(600).style("opacity", 1);
+      }
+    } else {
+      // 未来的课程：隐藏
+      circle.transition().duration(600).style("opacity", 0);
+    }
+  });
+
+  // 标签飞入
+  label.each(function(d) {
+    const text = d3.select(this);
+    if (d.year <= currentYear) {
+      if (text.style("opacity") == 0 || text.style("opacity") === "") {
+        text
+          .style("opacity", 0)
+          .attr("transform", `translate(${centerX},${centerY})`)
+          .transition().duration(1000)
+          .style("opacity", 1)
+          .attr("transform", `translate(${d.x + Math.cos(d.angle)*20},${d.y + Math.sin(d.angle)*20})`);
+      } else {
+        text.transition().duration(600).style("opacity", 1);
+      }
+    } else {
+      text.transition().duration(600).style("opacity", 0);
+    }
+  });
+
+  // 边：两端都出现才显示
+  link.transition().duration(600)
+    .style("opacity", d => {
+      const s = getNode(d.source);
+      const t = getNode(d.target);
+      return (s.year <= currentYear && t.year <= currentYear) ? 1 : 0;
+    });
+}
+
 // 初始渲染
 updatePositions();
+updateVisibility();
