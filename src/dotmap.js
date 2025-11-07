@@ -58,10 +58,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const g = svg.append("g");
 
   // =========================
-  // 投影：修复偏移，居中显示
+  // 投影：居中显示
   // =========================
   const projection = d3.geoMercator()
-    .center([105, 38]) // 调整中心点
+    .center([105, 38])
     .scale(800)
     .translate([width / 2, height / 2]);
 
@@ -76,100 +76,64 @@ document.addEventListener("DOMContentLoaded", function () {
   let points, labels;
 
   // =========================
-  // 缩放与平移
+  // 缩放与平移（定义但不立即调用）
   // =========================
-const zoom = d3.zoom()
-  .scaleExtent([0.5, 10])
-  .on("zoom", (event) => {
-    const { transform } = event;
-    g.attr("transform", transform);
+  const zoom = d3.zoom()
+    .scaleExtent([0.5, 10])
+    .on("zoom", (event) => {
+      const { transform } = event;
+      g.attr("transform", transform);
 
-    // 点位半径随缩放调整
-    points.attr("r", d => {
-      const base = d.hovered ? 12 : 8;
-      return base / transform.k;
+      // 点位半径随缩放调整
+      points.attr("r", d => {
+        const base = d.hovered ? 12 : 8;
+        return base / transform.k;
+      });
+
+      // 文字缩放逻辑与点保持一致，并且距离点更远
+      labels
+        .attr("x", d => projection(d.coords)[0])
+        .attr("y", d => projection(d.coords)[1] + (25 / transform.k))
+        .attr("font-size", `${12 / transform.k}px`);
     });
 
-    // 文字缩放逻辑与点保持一致，并且距离点更远
-    labels
-      .attr("x", d => projection(d.coords)[0])
-      .attr("y", d => projection(d.coords)[1] + (25 / transform.k)) // ✅ 距离加大
-      .attr("font-size", `${12 / transform.k}px`); // ✅ 与点逻辑一致
+  // =========================
+  // 框选功能（Shift+拖拽）
+  // =========================
+  let selectionRect, startPoint;
+  const selectedCities = new Set();
+
+  svg.on("mousedown", (event) => {
+    if (event.shiftKey) {
+      svg.on(".zoom", null); // 临时禁用 zoom 拖动
+
+      startPoint = d3.pointer(event, svg.node());
+      if (selectionRect) selectionRect.remove();
+      selectionRect = svg.append("rect")
+        .attr("x", startPoint[0])
+        .attr("y", startPoint[1])
+        .attr("width", 0)
+        .attr("height", 0)
+        .attr("fill", "rgba(0,0,255,0.1)")
+        .attr("stroke", "blue")
+        .attr("stroke-dasharray", "4");
+
+      svg.on("mousemove", mousemove);
+      svg.on("mouseup", (event) => {
+        mouseup(event);
+        svg.call(zoom); // 框选结束后恢复 zoom
+      });
+    }
   });
 
-svg.call(zoom);
-// =========================
-// 点位交互：修复缩放与悬停半径冲突
-// =========================
-points
-  .on("mouseover", function (event, d) {
-    d.hovered = true;
-    const t = d3.zoomTransform(svg.node());
-    d3.select(this)
-      .transition()
-      .duration(160)
-      .attr("r", 12 / t.k) // ✅ 悬停时半径与缩放一致
-      .attr("fill", "orange");
-
-    labels
-      .filter(l => l.name === d.name)
-      .style("display", "block")
-      .attr("x", projection(d.coords)[0])
-      .attr("y", projection(d.coords)[1] + (25 / t.k)) // ✅ 距离更远
-      .attr("font-size", `${12 / t.k}px`); // ✅ 与点逻辑一致
-  })
-  .on("mouseout", function (event, d) {
-    d.hovered = false;
-    const t = d3.zoomTransform(svg.node());
-    d3.select(this)
-      .transition()
-      .duration(160)
-      .attr("r", 8 / t.k) // ✅ 恢复基础半径
-      .attr("fill", "red");
-
-    labels
-      .filter(l => l.name === d.name)
-      .style("display", "none");
-  });
-// =========================
-// 框选功能（ctrl+Shift+拖拽）
-// =========================
-let selectionRect, startPoint;
-const selectedCities = new Set();
-
-svg.on("mousedown", (event) => {
-  if (event.shiftKey) {
-    // 临时禁用 zoom 的拖动行为
-    svg.on(".zoom", null);
-
-    startPoint = d3.pointer(event, svg.node());
-    if (selectionRect) selectionRect.remove();
-    selectionRect = svg.append("rect")
-      .attr("x", startPoint[0])
-      .attr("y", startPoint[1])
-      .attr("width", 0)
-      .attr("height", 0)
-      .attr("fill", "rgba(0,0,255,0.1)")
-      .attr("stroke", "blue")
-      .attr("stroke-dasharray", "4");
-
-    svg.on("mousemove", mousemove);
-    svg.on("mouseup", (event) => {
-      mouseup(event);
-      // 框选结束后恢复 zoom
-      svg.call(zoom);
-    });
+  function mousemove(event) {
+    const p = d3.pointer(event, svg.node());
+    const x = Math.min(p[0], startPoint[0]);
+    const y = Math.min(p[1], startPoint[1]);
+    const w = Math.abs(p[0] - startPoint[0]);
+    const h = Math.abs(p[1] - startPoint[1]);
+    selectionRect.attr("x", x).attr("y", y).attr("width", w).attr("height", h);
   }
-});
-
-function mousemove(event) {
-  const p = d3.pointer(event, svg.node());
-  const x = Math.min(p[0], startPoint[0]);
-  const y = Math.min(p[1], startPoint[1]);
-  const w = Math.abs(p[0] - startPoint[0]);
-  const h = Math.abs(p[1] - startPoint[1]);
-  selectionRect.attr("x", x).attr("y", y).attr("width", w).attr("height", h);
-}
 
 function mouseup(event) {
   const rect = selectionRect.node().getBBox();
