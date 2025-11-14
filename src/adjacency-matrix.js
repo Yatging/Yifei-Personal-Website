@@ -150,124 +150,177 @@ function splitCourseId(id) {
 let selectedGroups = new Set();
 let selectedYears = new Set();
 
+// 修复后的 initFilterControls / renderAll / renderCourseReferenceTable
+
 function initFilterControls() {
   const groupContainer = document.getElementById("filter-controls");
-  const groups = [...new Set(courses.map(c => c.group))];
+  const yearContainer = document.getElementById("year-controls");
+  if (!groupContainer || !yearContainer) return; // 安全退出
 
-  // 类别复选框
+  // 计算类别与年份
+  const groups = [...new Set(courses.map(c => c.group))];
+  const years = [...new Set(courses.map(c => c.year))].sort();
+
+  // 全局选择集合（若已存在则复用）
+  window.selectedGroups = window.selectedGroups || new Set();
+  window.selectedYears = window.selectedYears || new Set();
+
+  // 清空容器（避免重复渲染）
+  groupContainer.innerHTML = "";
+  yearContainer.innerHTML = "";
+
+  // 创建类别复选框
   groups.forEach(group => {
     const label = document.createElement("label");
+    label.className = 'group-label group-' + group.toLowerCase();
+
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.value = group;
     checkbox.checked = true;
+
+    // 小色块（可用于样式）
+    const swatch = document.createElement("span");
+    swatch.className = "group-swatch";
+
+    // 变更处理：更新集合、按钮状态并重渲染
     checkbox.addEventListener("change", () => {
-      if (checkbox.checked) selectedGroups.add(group);
-      else selectedGroups.delete(group);
+      if (checkbox.checked) window.selectedGroups.add(group);
+      else window.selectedGroups.delete(group);
+      updateGroupSelectAllBtn();
       renderAll();
     });
+
     label.appendChild(checkbox);
+    label.appendChild(swatch);
     label.appendChild(document.createTextNode(" " + group));
     groupContainer.appendChild(label);
-    selectedGroups.add(group);
+
+    // 初始加入集合
+    window.selectedGroups.add(group);
   });
 
-  // 全选/全不选按钮（类别）
-  // 创建按钮并设置类名
-const groupSelectAllBtn = document.createElement("button");
-groupSelectAllBtn.textContent = "Groups All (De)Select";
-groupSelectAllBtn.className = 'group-select-all';
-groupSelectAllBtn.setAttribute('aria-pressed', 'false');
+  // 创建 Groups 全选/全不选 按钮（并插入容器）
+  const groupSelectAllBtn = document.createElement("button");
+  groupSelectAllBtn.textContent = "Groups All (De)Select";
+  groupSelectAllBtn.className = 'group-select-all';
+  groupSelectAllBtn.setAttribute('aria-pressed', 'false');
 
-// 点击逻辑（保留原有全选/全不选功能）
-groupSelectAllBtn.addEventListener("click", () => {
-  const allSelected = selectedGroups.size === groups.length;
-  if (allSelected) {
-    // 全部选中 -> 取消所有
-    selectedGroups.clear();
-    groupContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
-    groupSelectAllBtn.classList.remove('active');
-    groupSelectAllBtn.setAttribute('aria-pressed', 'false');
-  } else {
-    // 部分或无选 -> 全选
-    selectedGroups = new Set(groups);
-    groupContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = true);
-    groupSelectAllBtn.classList.add('active');
-    groupSelectAllBtn.setAttribute('aria-pressed', 'true');
+  groupSelectAllBtn.addEventListener("click", () => {
+    const allSelected = window.selectedGroups.size === groups.length;
+    if (allSelected) {
+      // 取消所有
+      window.selectedGroups.clear();
+      groupContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
+      groupSelectAllBtn.classList.remove('active');
+      groupSelectAllBtn.setAttribute('aria-pressed', 'false');
+    } else {
+      // 全选
+      window.selectedGroups = new Set(groups);
+      groupContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = true);
+      groupSelectAllBtn.classList.add('active');
+      groupSelectAllBtn.setAttribute('aria-pressed', 'true');
+    }
+    renderAll();
+  });
+
+  groupContainer.appendChild(groupSelectAllBtn);
+
+  // 更新 Groups 全选按钮状态的辅助函数
+  function updateGroupSelectAllBtn() {
+    if (window.selectedGroups.size === groups.length) {
+      groupSelectAllBtn.classList.add('active');
+      groupSelectAllBtn.setAttribute('aria-pressed', 'true');
+    } else {
+      groupSelectAllBtn.classList.remove('active');
+      groupSelectAllBtn.setAttribute('aria-pressed', 'false');
+    }
   }
-  renderAll();
-});
-
-// 当单个 checkbox 改变时，更新按钮状态
-function updateGroupSelectAllBtn() {
-  if (selectedGroups.size === groups.length) {
-    groupSelectAllBtn.classList.add('active');
-    groupSelectAllBtn.setAttribute('aria-pressed', 'true');
-  } else {
-    groupSelectAllBtn.classList.remove('active');
-    groupSelectAllBtn.setAttribute('aria-pressed', 'false');
-  }
-}
-
-// 在每个 checkbox 的 change 事件处理器里调用 updateGroupSelectAllBtn()
-checkbox.addEventListener("change", () => {
-  if (checkbox.checked) selectedGroups.add(group);
-  else selectedGroups.delete(group);
+  // 初始化按钮状态
   updateGroupSelectAllBtn();
-  renderAll();
-});
 
-  // 年份复选框
+  // 年份复选框（渲染到 yearContainer）
   years.forEach(year => {
     const label = document.createElement("label");
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.value = year;
     checkbox.checked = true;
+
     checkbox.addEventListener("change", () => {
-      if (checkbox.checked) selectedYears.add(year);
-      else selectedYears.delete(year);
+      if (checkbox.checked) window.selectedYears.add(year);
+      else window.selectedYears.delete(year);
+      updateYearSelectAllBtn();
       renderAll();
     });
+
     label.appendChild(checkbox);
     label.appendChild(document.createTextNode(" " + year));
     yearContainer.appendChild(label);
-    selectedYears.add(year);
+
+    // 初始加入集合
+    window.selectedYears.add(year);
   });
 
-  // 全选/全不选按钮（年份）
+  // 年份 全选/全不选 按钮
   const yearSelectAllBtn = document.createElement("button");
   yearSelectAllBtn.textContent = "Years All (De)Select";
-  yearSelectAllBtn.style.marginLeft = "12px";
+  yearSelectAllBtn.className = 'year-select-all';
+  yearSelectAllBtn.setAttribute('aria-pressed', 'true');
+
   yearSelectAllBtn.addEventListener("click", () => {
-    if (selectedYears.size === years.length) {
-      selectedYears.clear();
+    const allSelected = window.selectedYears.size === years.length;
+    if (allSelected) {
+      window.selectedYears.clear();
       yearContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
+      yearSelectAllBtn.classList.remove('active');
+      yearSelectAllBtn.setAttribute('aria-pressed', 'false');
     } else {
-      selectedYears = new Set(years);
+      window.selectedYears = new Set(years);
       yearContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = true);
+      yearSelectAllBtn.classList.add('active');
+      yearSelectAllBtn.setAttribute('aria-pressed', 'true');
     }
     renderAll();
   });
+
   yearContainer.appendChild(yearSelectAllBtn);
+
+  // 更新年份全选按钮状态
+  function updateYearSelectAllBtn() {
+    if (window.selectedYears.size === years.length) {
+      yearSelectAllBtn.classList.add('active');
+      yearSelectAllBtn.setAttribute('aria-pressed', 'true');
+    } else {
+      yearSelectAllBtn.classList.remove('active');
+      yearSelectAllBtn.setAttribute('aria-pressed', 'false');
+    }
+  }
+  // 初始化年份按钮状态
+  updateYearSelectAllBtn();
 }
 
+// renderAll 保持原逻辑（清空并重渲染）
 function renderAll() {
   const container = document.getElementById("adjacency-matrix");
+  if (!container) return;
   container.innerHTML = "";
   renderCourseReferenceTable();
   generateAdjacencyMatrix();
 }
 
+// renderCourseReferenceTable 保持原有功能，但使用 class-friendly attributes
 function renderCourseReferenceTable() {
   const container = document.getElementById("adjacency-matrix");
   if (!container) return;
 
   const filteredCourses = courses.filter(
-    c => selectedGroups.has(c.group) && selectedYears.has(c.year)
+    c => (window.selectedGroups ? window.selectedGroups.has(c.group) : true) &&
+         (window.selectedYears ? window.selectedYears.has(c.year) : true)
   );
 
   const referenceTable = document.createElement("table");
+  referenceTable.className = "reference-table";
   referenceTable.style.borderCollapse = "collapse";
   referenceTable.style.width = "100%";
   referenceTable.style.fontSize = "12px";
@@ -294,6 +347,7 @@ function renderCourseReferenceTable() {
 
         const tdId = document.createElement("td");
         tdId.textContent = course.id;
+        tdId.className = "ref-id";
         tdId.style.padding = "4px";
         tdId.style.border = "1px solid #ccc";
         tdId.style.backgroundColor = bgColor;
@@ -302,6 +356,7 @@ function renderCourseReferenceTable() {
 
         const tdName = document.createElement("td");
         tdName.textContent = course.name;
+        tdName.className = "ref-name";
         tdName.style.padding = "4px";
         tdName.style.border = "1px solid #ccc";
         tdName.style.backgroundColor = bgColor;
@@ -319,6 +374,7 @@ function renderCourseReferenceTable() {
 
   container.appendChild(referenceTable);
 }
+
 
 function generateAdjacencyMatrix() {
   const filteredCourses = courses.filter(
