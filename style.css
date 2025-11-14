@@ -1,145 +1,336 @@
-html {
-    background-color: white;
-    scroll-behavior: smooth;
+/* ==========================================================================
+   Complete style.css
+   - 冷色调、无衬线字体、首屏放宽、社交品牌色保留
+   - 保持对现有脚本/DOM 的兼容（#filter-controls、#year-controls、#adjacency-matrix）
+   - 通过类名（matrix-connected / matrix-empty / group-*）驱动高饱和色块样式
+   ========================================================================== */
+
+/* Load Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+/* ---------------------------
+   Reset / 基础
+   --------------------------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg, #F3F8FB);
+  color: var(--text, #0B1220);
+  -webkit-text-size-adjust: 100%;
 }
 
-
-
-*{
-    color: black;
-    margin: 10px;
-    font: 14px Tahoma;
-
-
-}
-button{
-    color: black;
-    border-radius: 0.4em;
-    background-color: antiquewhite;
-}
-.box{
-    display: flex;
-}
-.box div{
-    border: solid 1px black;
-}
-.grid-container {
-    display: grid;
-    grid-template-rows: 100px 100px;
-    grid-template-columns: 100px 100px 100px;
-    grid-gap:1px;
-}
-.grid-item1 {
-    background: lightgray;
-    border: black 1px solid;
-    grid-column-start: 1;
-    grid-column-end: 3;
-    grid-row-start: 1;
-    grid-row-end: 1;
-}
-.grid-item2 {
-    background: lightgray;
-    border: black 1px solid;
-    grid-column-start: 1;
-    grid-column-end: 3;
-    grid-row-start: 2;
-    grid-row-end: 2;
-}
-.grid-item3 {
-    background: lightgray;
-    border: black 1px solid;
-    grid-column-start: 3;
-    grid-column-end: 4;
-    grid-row-start: 1;
-    grid-row-end: 3;
+/* 设计变量 */
+:root{
+  --bg: #F3F8FB;
+  --surface: #FFFFFF;
+  --primary: #0EA5E9;
+  --accent: #00B4D8;
+  --muted: #6B7280;
+  --text: #0B1220;
+  --brand-instagram: #E1306C;
+  --brand-linkedin: #0A66C2;
+  --radius: 12px;
+  --gap: 20px;
+  --container-max: 1200px;
+  --shadow-soft: 0 12px 36px rgba(11,18,32,0.06);
 }
 
-header, section{
-    margin: 2em auto;
-    width: min(75em, 100%);
-    background-color: antiquewhite;
-    padding: min(2em, 15%);
-    border-radius: 1em;
+/* 容器辅助 */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
-nav{
-    margin: 1em auto 1em auto;
-    width: min(1000px, 100%);
-    font-size: 1.5em;
-    background-color: antiquewhite;
+/* 基础排版 */
+h1, h2, h3, h4, h5, h6 { color: var(--text); }
+p { color: rgba(11,18,32,0.78); margin-bottom: 1rem; }
+
+/* 无障碍隐藏类 */
+.visually-hidden {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+  border: 0; padding: 0; margin: -1px;
 }
 
-nav ul{
-    display: flex;
-    align-items: center;
-    list-style-type: none;
-    gap: 2em;
-    background-color: antiquewhite;
+/* ---------------------------
+   Header / Navigation
+   --------------------------- */
+header { padding: 18px 0; }
+nav#nav { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+nav#nav ul { display:flex; gap:1rem; align-items:center; list-style:none; margin:0; padding:0; }
+nav#nav a.brand { font-weight:700; font-size:1.4rem; color:var(--text); text-decoration:none; }
+nav#nav a, nav#nav button {
+  color:var(--muted);
+  background:transparent;
+  border:none;
+  padding:8px 10px;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+  transition: all .16s ease;
+}
+nav#nav a:hover, nav#nav a:focus-visible, nav#nav button:hover, nav#nav button:focus-visible {
+  background: rgba(14,165,233,0.06);
+  color:var(--text);
+  transform:translateY(-2px);
+  box-shadow:var(--shadow-soft);
+  outline:none;
 }
 
-nav p:first-child{
-    margin-right: auto;
-    background-color: antiquewhite;
+/* ---------------------------
+   HERO — 放宽首屏宽度与内边距
+   --------------------------- */
+.hero {
+  display:flex;
+  gap:var(--gap);
+  align-items:center;
+  justify-content:flex-start;
+  flex-wrap:wrap;
+  padding: 40px;
+  background: linear-gradient(180deg, rgba(14,165,233,0.04), rgba(10,102,194,0.01));
+  border-radius: calc(var(--radius) - 4px);
+  box-shadow: var(--shadow-soft);
+  margin: 24px auto;
+  width: calc(100% - 40px);
+  max-width: calc(var(--container-max) + 240px);
 }
 
-.flex-container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 3em;
-}
-
-h1{
-    font-size: 2em;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.intro_button {
-    display: inline-block;
-    text-decoration: none;
-    padding: .75em 1em;
-    margin-top: 0.5em;
-    border-radius: 1em;
-    font-weight: 600;
-    color: white;
-    font-size: 1em;
-}
-
-.intro_button.instagram {
-    background-color: #C13584; /* Instagram 紫色 */
-}
-
-.intro_button.linkedin {
-    background-color: #0077B5; /* LinkedIn 蓝色 */
-}
-
-
-.text-container{
-    flex:0 100mm;
-}
-
-#vis-dotmap h2 {
-  text-align: center;
-  font-family: 'Georgia', serif;
-  font-size: 32px;
-  margin-bottom: 10px;
-}
-#dotmap-container svg {
+/* 头像 */
+.avatar {
+  width: 260px;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 3px solid rgba(255,255,255,0.6);
+  box-shadow: var(--shadow-soft);
   display: block;
-  margin: auto;
-  border: 1px solid #ccc;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  cursor: grab;
-}
-#vis-dotmap {
-  padding: 60px 0 120px 0; /* 上下留白，底部多留点 */
 }
 
-#visitors {
-  padding: 60px 0; /* 确保最后一个 section 也有间距 */
+/* Hero 文本 */
+.hero-right { flex:1 1 420px; min-width:260px; }
+.hero-title { font-size: clamp(2.2rem, 6vw, 3.6rem); margin:0 0 10px 0; font-weight:700; color:var(--text); line-height:1; }
+.hero-sub { margin:0 0 16px 0; color:var(--muted); max-width:70ch; }
+
+/* CTA 行 */
+.cta-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
+
+/* ---------------------------
+   按钮与社交品牌色（兼容 .intro_button 与 .btn 体系）
+   --------------------------- */
+.btn, .intro_button {
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 16px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:600;
+  cursor:pointer;
+  border:0;
+  transition: transform .16s ease, box-shadow .2s ease, background-color .2s ease;
 }
+.btn:focus-visible { outline:3px solid rgba(14,165,233,0.14); outline-offset:3px; }
+
+/* Instagram */
+.btn-instagram, .intro_button.instagram {
+  background: var(--brand-instagram);
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(225,48,108,0.12);
+}
+.btn-instagram:hover, .intro_button.instagram:hover,
+.btn-instagram:focus-visible, .intro_button.instagram:focus-visible {
+  transform: translateY(-4px);
+  background: #ff7fb0;
+  color: #111;
+  box-shadow: 0 18px 40px rgba(225,48,108,0.14);
+}
+
+/* LinkedIn */
+.btn-linkedin, .intro_button.linkedin {
+  background: var(--brand-linkedin);
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(10,102,194,0.12);
+}
+.btn-linkedin:hover, .intro_button.linkedin:hover,
+.btn-linkedin:focus-visible, .intro_button.linkedin:focus-visible {
+  transform: translateY(-4px);
+  background: #0b5bb0;
+  color: #fff;
+  box-shadow: 0 18px 40px rgba(10,102,194,0.14);
+}
+
+/* Primary / ghost 兼容 */
+.btn-primary { background:var(--primary); color:#fff; box-shadow:0 8px 26px rgba(14,165,233,0.12); }
+.btn-primary:hover { transform:translateY(-4px); background:#0b9fd6; }
+.btn-ghost { background:transparent; color:var(--primary); border:1px solid rgba(14,165,233,0.12); }
+.btn-ghost:hover { background:rgba(14,165,233,0.06); transform:translateY(-4px); }
+
+/* ---------------------------
+   Section 默认与每节背景（使用 !important 覆盖内联）
+   --------------------------- */
+.section-surface { background: transparent; padding: 36px 0; margin: 18px 0; }
+section { padding: 36px 0; margin: 18px 0; text-align: left; }
+
+/* 精确覆盖每个 section 的背景色 */
+#vis-scatterplot { background-color: #F3F8FB !important; border-radius:12px; padding:28px !important; }
+#vis-radialtree  { background-color: #E6F3FA !important; border-radius:12px; padding:28px !important; }
+#courses-network { background-color: #F3F8FB !important; border-radius:12px !important; padding:28px !important; }
+#course-matrix   { background-color: #EAF6FB !important; border-radius:12px !important; padding:28px !important; }
+#vis-dotmap      { background-color: #E6F3FA !important; border-radius:12px !important; padding:28px !important; }
+#visitors        { background-color: #F3F8FB !important; border-radius:12px !important; padding:28px !important; }
+
+/* 让 Scatterplot 与 Radial Tree 的内容居中显示 */
+#vis-scatterplot .container,
+#vis-radialtree .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center !important;
+}
+#vis-scatterplot table,
+#vis-radialtree table { margin: 0 auto; }
+
+/* ---------------------------
+   Course Matrix 显示层样式（仅改变显示，不改 DOM/JS）
+   - 期望 JS 在 #filter-controls / #year-controls / #adjacency-matrix 中渲染内容
+   --------------------------- */
+#course-matrix { max-width: 1200px; margin: 18px auto; padding: 24px; border-radius: 12px; box-shadow: 0 10px 30px rgba(11,18,32,0.04); }
+
+/* filter / year 控件容器样式 */
+#filter-controls, #year-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 12px 0 18px 0;
+}
+
+/* label 样式（复选框 + 文本） */
 #filter-controls label, #year-controls label {
-  display: inline-block;
-  margin-right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid rgba(11,18,32,0.04);
+  font-weight: 700;
+  color: var(--text);
 }
+
+/* 小按钮样式（全选/全不选） */
+#filter-controls button, #year-controls button {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(11,18,32,0.06);
+  background: #fff;
+  cursor: pointer;
+  font-weight:700;
+}
+
+/* group swatch（JS 可插入 .group-swatch） */
+.group-swatch { width: 14px; height: 14px; border-radius: 3px; display:inline-block; margin-right:6px; border:1px solid rgba(0,0,0,0.06); vertical-align:middle; }
+
+/* 预设 group 颜色（供 JS 给元素加 class 使用） */
+.group-basic .group-swatch   { background: #4fc3f7; } /* cyan */
+.group-theory .group-swatch  { background: #7c4dff; } /* purple */
+.group-coding .group-swatch  { background: #00b894; } /* green */
+.group-culture .group-swatch { background: #ff6b6b; } /* coral */
+.group-workshop .group-swatch{ background: #ffd166; } /* amber */
+
+/* adjacency-matrix 容器与表格样式（航班时刻表风格） */
+#adjacency-matrix {
+  margin-top: 12px;
+  width: 100%;
+  overflow: auto;
+  border-radius: 10px;
+  padding: 8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.9));
+  box-shadow: 0 10px 30px rgba(11,18,32,0.04);
+}
+#adjacency-matrix table { width: 100%; border-collapse: collapse; font-weight: 700; table-layout: fixed; }
+#adjacency-matrix thead th {
+  padding: 8px 10px;
+  text-align: center;
+  color: rgba(11,18,32,0.75);
+  background: rgba(255,255,255,0.9);
+  border-bottom: 2px solid rgba(11,18,32,0.06);
+  position: sticky; top: 0; z-index: 2;
+}
+#adjacency-matrix tbody td, #adjacency-matrix tbody th {
+  padding: 8px 6px;
+  border: 1px solid rgba(11,18,32,0.04);
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* 时间列 */
+#adjacency-matrix td.time { width: 96px; color: var(--muted); font-weight: 800; }
+
+/* 高饱和色块：通过 class 控制（优先级高于内联） */
+#adjacency-matrix td.matrix-connected {
+  background: linear-gradient(180deg,#00b4d8,#0077b6) !important;
+  color: #fff !important;
+  font-weight: 800;
+  box-shadow: 0 8px 20px rgba(0,119,182,0.12);
+}
+#adjacency-matrix td.matrix-empty {
+  background: transparent !important;
+  color: var(--muted) !important;
+  font-weight: 700;
+}
+
+/* 参考表（课程列表）中按 group 的色块（如果 JS 使用 inline bg，也会被覆盖） */
+#adjacency-matrix td.ref-id, #adjacency-matrix td.ref-name {
+  color: #fff;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 6px;
+}
+
+/* 鼠标悬停与键盘聚焦提示 */
+#adjacency-matrix tbody tr:hover td, #adjacency-matrix tbody tr:focus-within td {
+  transform: translateY(-2px);
+  transition: transform .12s ease;
+}
+
+/* 如果 JS 渲染的是 grid / div 色块而非 table，提供通用样式 */
+#adjacency-matrix .matrix-grid { display:grid; grid-auto-rows:56px; gap:8px; }
+#adjacency-matrix .matrix-grid .matrix-cell { border-radius:8px; padding:10px; font-weight:700; color:#fff; }
+
+/* ---------------------------
+   Dotmap / Visitors 占位尺寸
+   --------------------------- */
+#dotmap-container { width: 100%; height: 800px; }
+#visitor-dotmap { width: 100%; height: 600px; }
+
+/* ---------------------------
+   响应式
+   --------------------------- */
+@media (max-width: 900px) {
+  .hero { flex-direction: column; padding: 20px; max-width: calc(100% - 40px); }
+  .avatar { width: 160px; height: 160px; }
+  .hero-title { font-size: 2rem; }
+  #adjacency-matrix thead th, #adjacency-matrix tbody td { padding: 8px; font-size: 0.95rem; }
+  #dotmap-container { height: 520px; }
+  #visitor-dotmap { height: 420px; }
+  #adjacency-matrix { padding: 6px; }
+}
+
+/* 小安全覆盖：避免某些内联 text-align 导致意外居中（但不覆盖我们明确要居中的区域） */
+[style*="text-align:center"] { text-align: left !important; }
+#vis-scatterplot .container[style*="text-align:center"],
+#vis-radialtree .container[style*="text-align:center"] { text-align: center !important; }
+
+/* End of style.css */

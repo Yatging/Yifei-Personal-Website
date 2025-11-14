@@ -1,116 +1,144 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Peter HUANG Yifei's Personal Website</title>
-  <link href="style.css" rel="stylesheet" />
-</head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Peter HUANG Yifei — Portfolio</title>
 
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
 <body>
-  <h1 id="homepage-title">Peter HUANG Yifei's Personal Website</h1>
+  <h1 class="visually-hidden">Peter HUANG Yifei Personal Website</h1>
 
   <header>
-    <!-- navigation bar-->
-    <div class="main">
-      <nav id="nav">
+    <div class="main container">
+      <nav id="nav" aria-label="Main navigation">
         <ul>
-          <h1>Peter HUANG Yifei</h1>
-          <a id="press" href="#vis-fridayescape">Press to help me get home</a>
-          <a id="subpage" href="subpage/my_work.html">My Work</a>
-          <button id="contact">Contact Me</button>
+          <li><a class="brand" href="#about">Peter HUANG Yifei</a></li>
+          <li><a id="subpage" href="subpage/my_work.html">My Work</a></li>
+          <li><button id="contact" type="button">Contact Me</button></li>
         </ul>
       </nav>
 
-      <!--photo + self intro-->
-      <div class="flex-container">
-        <img src="me.jpg" alt="My photo" />
-        <div class="text-container">
-          <div>
-            <h1>Welcome to my website</h1>
-            <p>
-              I’m currently studying at the School of Creative Media, City University of Hong Kong,
-              with a strong interest in photography, graphic communication, and data visualization.
-              I’ve gained hands-on experience through internships in both the marketing and news industries,
-              which have deepened my understanding of visual storytelling and audience engagement.
-            </p>
-            <a class="intro_button instagram" href="https://www.instagram.com/yatging_">Follow me on Instagram</a>
-            <a class="intro_button linkedin" href="https://www.linkedin.com/in/yifei-huang-a8295a2ba?utm_">Follow me on LinkedIn</a>
+      <section class="hero" id="about" aria-labelledby="hero-name">
+        <div class="hero-left">
+          <img class="avatar" src="me.jpg" alt="Yifei portrait" loading="lazy" />
+        </div>
+
+        <div class="hero-right">
+          <h1 id="hero-name" class="hero-title">Peter HUANG Yifei</h1>
+          <p class="hero-sub">I’m currently studying at the School of Creative Media, City University of Hong Kong, with a strong interest in photography, graphic communication, and data visualization. I’ve gained hands-on experience through internships in both the marketing and news industries, which have deepened my understanding of visual storytelling and audience engagement.</p>
+
+          <div class="cta-row">
+            <a class="btn btn-instagram" href="https://www.instagram.com/yatging_" target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
+            <a class="btn btn-linkedin" href="https://www.linkedin.com/in/yifei-huang-a8295a2ba?utm_" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">LinkedIn</a>
           </div>
         </div>
-      </div>
-
-      <p>↑me facing any problems</p>
+      </section>
     </div>
   </header>
 
-  <section id="vis-scatterplot">
-    random data with real link
-  </section>
+  <main>
+    <section id="vis-scatterplot" class="section-surface">
+      <div class="container">
+        <h2 class="section-title">Scatterplot</h2>
+        <p>random data with real link</p>
+      </div>
+    </section>
 
-  <section id="vis-newplot">
-    real data!
-  </section>
+    <!-- 已移除 New Plot section（按要求） -->
 
-  <section id="vis-radialtree">
-    <h2>About Me — Radial Tree Visualization</h2>
-    <div id="radialtree-legend" style="margin-top: 2em;"></div>
-  </section>
+    <section id="vis-radialtree" class="section-surface">
+      <div class="container">
+        <h2>About Me — Radial Tree Visualization</h2>
+        <div id="radialtree-legend" class="visual-legend"></div>
+      </div>
+    </section>
 
-  <section id="vis-fridayescape">
-    <h2>My Friday Escape Routes to Guangzhou</h2>
-  </section>
+<section id="courses-network" class="section-surface">
+  <div class="container narrow">
+    <h2 class="section-title">My Knowledge Network</h2>
+    <p class="muted">These are courses I have taken in the university.</p>
 
-  <section id="courses-network" style="padding: 60px 0; background-color: #f4f7fa;">
-    <div class="container" style="max-width: 900px; margin: auto; text-align: center;">
-      <h2 style="font-family: 'Georgia', serif; font-size: 32px; margin-bottom: 10px;">My Knowledge Network</h2>
-      <p style="font-size: 16px; color: #555;">
-        These are courses I have taken in the university.
-      </p>
-      <input id="year-slider" type="range" min="2023" max="2025" step="1" value="2025">
-<span id="year-label">2025</span>
+    <!-- 保留图表占位，筛选控件已移除到 course-matrix -->
+    <div id="network-graph" class="graph-placeholder" aria-hidden="true"></div>
+  </div>
+</section>
 
 
-      <div id="network-graph" style="margin-top: 40px;"></div>
-    </div>
-  </section>
-
-  <section id="course-matrix">
+    <!-- 恢复为原始 Course Matrix DOM（仅改变样式，不改功能） -->
+    <section id="course-matrix">
+  <div class="container">
+    <!-- JS expects these exact IDs; 保证它们在此处 -->
     <div id="filter-controls"></div>
     <div id="year-controls"></div>
     <div id="adjacency-matrix"></div>
+  </div>
+</section>
 
-  </section>
 
-  <section id="vis-dotmap" style="padding: 60px 0; background-color: #f4f7fa;">
-    <div class="container" style="max-width: 900px; margin: auto; text-align: center;">
-      <h2>Places I Have Visited in China</h2>
-      <div id="dotmap-container" style="width: 100%; height: 800px;"></div>
-      • Hold <b>Ctrl and Shift</b> and drag with the mouse to draw a rectangle and select cities.  
-  • Selected cities will appear in the right panel.  
-  • Click a city name in the panel to pan/zoom to that city.  
-  • Drag without Shift to pan the map, scroll to zoom.
+    <section id="vis-dotmap" class="section-surface">
+      <div class="container">
+        <h2 class="section-title">Places I Have Visited in China</h2>
+        <div id="dotmap-container" class="map-placeholder"></div>
 
+        <div class="map-instructions">
+          <p>• Hold <b>Ctrl and Shift</b> and drag with the mouse to draw a rectangle and select cities.</p>
+          <p>• Selected cities will appear in the right panel.</p>
+          <p>• Click a city name in the panel to pan/zoom to that city.</p>
+          <p>• Drag without Shift to pan the map, scroll to zoom.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="visitors" class="section-surface">
+      <div class="container">
+        <h2 class="section-title">Live Visitors</h2>
+        <div id="visitor-dotmap" class="map-placeholder"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p class="muted" style="margin:0;">© <span id="year"></span> Peter HUANG Yifei</p>
     </div>
-  </section>
+  </footer>
 
-  <section id="visitors">
-    <div id="visitor-dotmap" style="width:100%; height:600px;"></div>
-    整不出来了后边慢慢搞吧
-  </section>
-
-  <!-- ✅ 先加载 D3 和 TopoJSON -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
 
-  <!-- ✅ 再加载你自己的脚本 -->
-  <script src="code.js"></script>
-  <script src="src/scatterplot.js"></script>
-  <script src="src/newplot.js"></script>
-  <script src="src/radialTree.js"></script>
-  <script src="src/fridayEscapeTree.js"></script>
-  <script src="src/courses-network.js"></script>
-  <script src="src/adjacency-matrix.js"></script>
-  <script src="src/dotmap.js"></script>
-  <script src="src/visitorDotmap.js"></script>
+  <script src="code.js" defer></script>
+  <script src="src/scatterplot.js" defer></script>
+  <script src="src/newplot.js" defer></script>
+  <script src="src/radialTree.js" defer></script>
+  <script src="src/fridayEscapeTree.js" defer></script>
+  <script src="src/courses-network.js" defer></script>
+  <script src="src/adjacency-matrix.js" defer></script>
+  <script src="src/dotmap.js" defer></script>
+  <script src="src/visitorDotmap.js" defer></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var y = document.getElementById('year');
+      if (y) y.textContent = new Date().getFullYear();
+
+      var slider = document.getElementById('year-slider');
+      var label = document.getElementById('year-label');
+      if (slider && label) {
+        slider.addEventListener('input', function () { label.textContent = slider.value; });
+      }
+
+      document.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.classList.contains('active')));
+        });
+      });
+    });
+  </script>
 </body>
 </html>

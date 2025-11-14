@@ -1,3 +1,7 @@
+// src/courses-network.js (robust, responsive version)
+// 替换原文件：增加容器尺寸等待、回退、resize 处理与调试日志
+// 保留原有数据、年份过滤与动画逻辑
+
 const courses = [
   { id: "SM1702", name: "Creative Media Studio I", group: "Basic", year:2023 },
   { id: "SM2704", name: "Creative Media Studio II", group: "Basic", year:2024 },
@@ -38,224 +42,294 @@ const links = [
   { source: "SM2702", target: "SM2706" }
 ];
 
-const width = 800;
-const height = 600;
-const centerX = width / 2;
-const centerY = height / 2;
-const radius = 200;
-const lineHeight = 0.8;
-const textWidth = 160;
-
 const colorScale = d3.scaleOrdinal()
   .domain(["Basic", "Theory", "Coding", "Culture", "Workshop"])
   .range(["#6baed6", "#9ecae1", "#f78fb3", "#31a354", "#fdae6b"]);
 
-const svg = d3.select("#network-graph")
-  .append("svg")
-  .attr("width", width)
-  .attr("height", height);
+// container
+const wrapper = document.getElementById('network-graph');
+if (!wrapper) {
+  console.warn('courses-network: container #network-graph not found — aborting network render.');
+} else {
 
-const defs = svg.append("defs");
-const container = svg.append("g");
-
-// 初始化节点位置（极坐标）
-courses.forEach((d, i) => {
-  d.angle = (i / courses.length) * 2 * Math.PI;
-  d.radius = radius;
-  d.x = centerX + d.radius * Math.cos(d.angle);
-  d.y = centerY + d.radius * Math.sin(d.angle);
-});
-
-// 获取节点对象
-function getNode(id) {
-  return typeof id === "string" ? courses.find(d => d.id === id) : id;
-}
-
-// 创建渐变色（动态方向）
-function createGradient(id, color1, color2, x1, y1, x2, y2) {
-  const gradient = defs.append("linearGradient")
-    .attr("id", id)
-    .attr("gradientUnits", "userSpaceOnUse")
-    .attr("x1", x1)
-    .attr("y1", y1)
-    .attr("x2", x2)
-    .attr("y2", y2);
-  gradient.append("stop").attr("offset", "0%").attr("stop-color", color1);
-  gradient.append("stop").attr("offset", "100%").attr("stop-color", color2);
-}
-
-// 自动换行函数
-function wrapText(textEl, text, width) {
-  const words = text.split(" ");
-  let line = [];
-  let lineNumber = 0;
-  textEl.text(null);
-  let tspan = textEl.append("tspan").attr("x", 0).attr("dy", "0em");
-  for (let word of words) {
-    line.push(word);
-    tspan.text(line.join(" "));
-    if (tspan.node().getComputedTextLength() > width) {
-      line.pop();
-      tspan.text(line.join(" "));
-      line = [word];
-      tspan = textEl.append("tspan")
-        .attr("x", 0)
-        .attr("dy", ++lineNumber * lineHeight + "em")
-        .text(word);
-    }
+  // wait for container to have a usable size (width > threshold)
+  function waitForSize(threshold = 60, maxRetries = 12, interval = 80) {
+    return new Promise((resolve) => {
+      let tries = 0;
+      const check = () => {
+        const r = wrapper.getBoundingClientRect();
+        const w = Math.floor(r.width);
+        const h = Math.floor(r.height);
+        if (w >= threshold && h >= 80) {
+          resolve({ width: w, height: Math.max(h, 420) });
+        } else {
+          tries++;
+          if (tries >= maxRetries) {
+            // fallback: use parent width or defaults
+            const parentW = wrapper.parentElement ? wrapper.parentElement.getBoundingClientRect().width : window.innerWidth;
+            const fallbackW = Math.max(600, Math.floor(parentW) || 800);
+            const fallbackH = Math.max(420, Math.floor(fallbackW * 0.6));
+            console.warn('courses-network: container size small after retries, using fallback', {w, h, fallbackW, fallbackH});
+            resolve({ width: fallbackW, height: fallbackH });
+          } else {
+            setTimeout(check, interval);
+          }
+        }
+      };
+      check();
+    });
   }
-}
 
-// 绘制边线
-const link = container.append("g")
-  .selectAll("line")
-  .data(links)
-  .enter().append("line")
-  .attr("stroke-width", 2.5);
+  // main async init
+  (async function init() {
+    const size = await waitForSize();
+    let width = size.width;
+    let height = size.height;
+    let centerX = width / 2;
+    let centerY = height / 2;
+    let radius = Math.min(width, height) / 2 - 80;
+    const lineHeight = 0.8;
+    const textWidth = 160;
 
-// 绘制节点
-const node = container.append("g")
-  .selectAll("circle")
-  .data(courses)
-  .enter().append("circle")
-  .attr("r", 10)
-  .attr("fill", d => colorScale(d.group))
-  .attr("stroke", "#444")
-  .attr("stroke-width", 1.2);
+    // ensure wrapper has a minimum height so layout doesn't collapse
+    if (!wrapper.style.minHeight) wrapper.style.minHeight = Math.max(420, height) + 'px';
 
-// 绘制标签
-const label = container.append("g")
-  .selectAll("text")
-  .data(courses)
-  .enter().append("text")
-  .attr("font-size", "12px")
-  .attr("font-family", "Georgia, serif")
-  .attr("fill", "#333")
-  .each(function(d) {
-    wrapText(d3.select(this), d.name, textWidth);
-  });
+    // remove any previous svg to avoid duplicates
+    d3.select(wrapper).selectAll('svg').remove();
 
-// 更新位置
-function updatePositions() {
-  courses.forEach(d => {
-    d.x = centerX + d.radius * Math.cos(d.angle);
-    d.y = centerY + d.radius * Math.sin(d.angle);
-  });
+    const svg = d3.select(wrapper)
+      .append('svg')
+      .attr('viewBox', `0 0 ${width} ${height}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet')
+      .attr('width', '100%')
+      .attr('height', height)
+      .style('display', 'block');
 
-  defs.selectAll("*").remove(); // 清除旧渐变
+    const defs = svg.append('defs');
+    const containerG = svg.append('g');
 
-  node
-    .attr("cx", d => d.x)
-    .attr("cy", d => d.y);
-
-  label
-    .attr("transform", d => {
-      const offsetX = Math.cos(d.angle) * 20;
-      const offsetY = Math.sin(d.angle) * 20;
-      return `translate(${d.x + offsetX},${d.y + offsetY})`;
-    })
-    .attr("text-anchor", d => {
-      const deg = (d.angle * 180) / Math.PI;
-      return deg > 90 && deg < 270 ? "end" : "start";
+    // initialize polar positions
+    courses.forEach((d, i) => {
+      d.angle = (i / courses.length) * 2 * Math.PI;
+      d.radius = radius;
+      d.x = centerX + d.radius * Math.cos(d.angle);
+      d.y = centerY + d.radius * Math.sin(d.angle);
     });
 
-  link
-    .attr("x1", d => getNode(d.source).x)
-    .attr("y1", d => getNode(d.source).y)
-    .attr("x2", d => getNode(d.target).x)
-    .attr("y2", d => getNode(d.target).y)
-    .attr("stroke", d => {
-      const source = getNode(d.source);
-      const target = getNode(d.target);
-      const sGroup = source.group;
-      const tGroup = target.group;
-      if (sGroup === tGroup) {
-        return colorScale(sGroup);
-      } else {
-        const gradId = `gradient-${source.id}-${target.id}`;
-        createGradient(gradId, colorScale(sGroup), colorScale(tGroup), source.x, source.y, target.x, target.y);
-        return `url(#${gradId})`;
+    function getNode(id) {
+      return typeof id === "string" ? courses.find(d => d.id === id) : id;
+    }
+
+    function createGradient(id, color1, color2, x1, y1, x2, y2) {
+      defs.select(`#${id}`).remove();
+      const gradient = defs.append("linearGradient")
+        .attr("id", id)
+        .attr("gradientUnits", "userSpaceOnUse")
+        .attr("x1", x1)
+        .attr("y1", y1)
+        .attr("x2", x2)
+        .attr("y2", y2);
+      gradient.append("stop").attr("offset", "0%").attr("stop-color", color1);
+      gradient.append("stop").attr("offset", "100%").attr("stop-color", color2);
+    }
+
+    function wrapText(textEl, text, width) {
+      const words = text.split(" ");
+      let line = [];
+      let lineNumber = 0;
+      textEl.text(null);
+      let tspan = textEl.append("tspan").attr("x", 0).attr("dy", "0em");
+      for (let word of words) {
+        line.push(word);
+        tspan.text(line.join(" "));
+        if (tspan.node().getComputedTextLength() > width) {
+          line.pop();
+          tspan.text(line.join(" "));
+          line = [word];
+          tspan = textEl.append("tspan")
+            .attr("x", 0)
+            .attr("dy", ++lineNumber * lineHeight + "em")
+            .text(word);
+        }
       }
-    });
-}
+    }
 
-// 拖动旋转
-let lastX = null;
-svg.call(d3.drag()
-  .on("start", event => { lastX = event.x; })
-  .on("drag", event => {
-    const dx = event.x - lastX;
-    const deltaAngle = dx * 0.005;
-    courses.forEach(d => d.angle += deltaAngle);
+    // draw elements
+    const link = containerG.append("g")
+      .selectAll("line")
+      .data(links)
+      .enter().append("line")
+      .attr("stroke-width", 2.5)
+      .attr("stroke-linecap", "round")
+      .style("opacity", 1);
+
+    const node = containerG.append("g")
+      .selectAll("circle")
+      .data(courses)
+      .enter().append("circle")
+      .attr("r", 10)
+      .attr("fill", d => colorScale(d.group))
+      .attr("stroke", "#444")
+      .attr("stroke-width", 1.2)
+      .style("opacity", 1);
+
+    const label = containerG.append("g")
+      .selectAll("text")
+      .data(courses)
+      .enter().append("text")
+      .attr("font-size", "12px")
+      .attr("font-family", "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif")
+      .attr("fill", "#0B1220")
+      .style("opacity", 1)
+      .each(function(d) {
+        wrapText(d3.select(this), d.name, textWidth);
+      });
+
+    function updatePositions() {
+      // recompute size in case wrapper changed
+      const r = wrapper.getBoundingClientRect();
+      width = Math.max(600, Math.floor(r.width) || width);
+      height = Math.max(420, Math.floor(r.height) || height);
+      centerX = width / 2;
+      centerY = height / 2;
+      radius = Math.min(width, height) / 2 - 80;
+
+      svg.attr('viewBox', `0 0 ${width} ${height}`).attr('height', height);
+
+      courses.forEach(d => {
+        const r = d.radius || radius;
+        d.x = centerX + r * Math.cos(d.angle);
+        d.y = centerY + r * Math.sin(d.angle);
+      });
+
+      defs.selectAll("*").remove();
+
+      node
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+
+      label
+        .attr("transform", d => {
+          const offsetX = Math.cos(d.angle) * 20;
+          const offsetY = Math.sin(d.angle) * 20;
+          return `translate(${d.x + offsetX},${d.y + offsetY})`;
+        })
+        .attr("text-anchor", d => {
+          const deg = (d.angle * 180) / Math.PI;
+          return deg > 90 && deg < 270 ? "end" : "start";
+        });
+
+      link
+        .attr("x1", d => getNode(d.source).x)
+        .attr("y1", d => getNode(d.source).y)
+        .attr("x2", d => getNode(d.target).x)
+        .attr("y2", d => getNode(d.target).y)
+        .attr("stroke", d => {
+          const source = getNode(d.source);
+          const target = getNode(d.target);
+          const sGroup = source.group;
+          const tGroup = target.group;
+          if (sGroup === tGroup) {
+            return colorScale(sGroup);
+          } else {
+            const gradId = `gradient-${source.id}-${target.id}`;
+            createGradient(gradId, colorScale(sGroup), colorScale(tGroup), source.x, source.y, target.x, target.y);
+            return `url(#${gradId})`;
+          }
+        });
+    }
+
+    // rotation drag
+    let lastX = null;
+    svg.call(d3.drag()
+      .on("start", event => { lastX = event.x; })
+      .on("drag", event => {
+        if (lastX == null) lastX = event.x;
+        const dx = event.x - lastX;
+        const deltaAngle = dx * 0.005;
+        courses.forEach(d => d.angle += deltaAngle);
+        updatePositions();
+        lastX = event.x;
+      })
+      .on("end", () => { lastX = null; })
+    );
+
+    // year slider
+    let currentYear = +d3.select("#year-slider").node()?.value || new Date().getFullYear();
+    d3.select("#year-label").text(currentYear);
+    d3.select("#year-slider").on("input", function() {
+      currentYear = +this.value;
+      d3.select("#year-label").text(currentYear);
+      updateVisibility();
+    });
+
+    function updateVisibility() {
+      node.each(function(d) {
+        const circle = d3.select(this);
+        if (d.year <= currentYear) {
+          if (!circle.attr("data-visible") || circle.attr("data-visible") === "false") {
+            circle
+              .attr("cx", centerX)
+              .attr("cy", centerY)
+              .attr("r", 0)
+              .style("opacity", 1)
+              .transition().duration(1000)
+              .attr("cx", d.x)
+              .attr("cy", d.y)
+              .attr("r", 10)
+              .on('end', () => circle.attr("data-visible", "true"));
+          } else {
+            circle.transition().duration(600).style("opacity", 1).attr("cx", d.x).attr("cy", d.y);
+          }
+        } else {
+          circle.transition().duration(600).style("opacity", 0).on('end', () => circle.attr("data-visible", "false"));
+        }
+      });
+
+      label.each(function(d) {
+        const text = d3.select(this);
+        if (d.year <= currentYear) {
+          if (!text.attr("data-visible") || text.attr("data-visible") === "false") {
+            text
+              .style("opacity", 0)
+              .attr("transform", `translate(${centerX},${centerY})`)
+              .transition().duration(1000)
+              .style("opacity", 1)
+              .attr("transform", `translate(${d.x + Math.cos(d.angle)*20},${d.y + Math.sin(d.angle)*20})`)
+              .on('end', () => text.attr("data-visible", "true"));
+          } else {
+            text.transition().duration(600).style("opacity", 1).attr("transform", `translate(${d.x + Math.cos(d.angle)*20},${d.y + Math.sin(d.angle)*20})`);
+          }
+        } else {
+          text.transition().duration(600).style("opacity", 0).on('end', () => text.attr("data-visible", "false"));
+        }
+      });
+
+      link.transition().duration(600)
+        .style("opacity", d => {
+          const s = getNode(d.source);
+          const t = getNode(d.target);
+          return (s.year <= currentYear && t.year <= currentYear) ? 1 : 0;
+        });
+    }
+
+    // initial
     updatePositions();
-    lastX = event.x;
-  }));
+    updateVisibility();
 
-
-//新增 随时间变动
-let currentYear = +d3.select("#year-slider").node().value;
-d3.select("#year-label").text(currentYear);
-
-d3.select("#year-slider").on("input", function() {
-  currentYear = +this.value;
-  d3.select("#year-label").text(currentYear);
-  updateVisibility();
-});
-
-function updateVisibility() {
-  // 节点飞入动画
-  node.each(function(d) {
-    const circle = d3.select(this);
-    if (d.year <= currentYear) {
-      if (circle.style("opacity") == 0 || circle.style("opacity") === "") {
-        // 第一次出现：从中心飞到目标位置
-        circle
-          .attr("cx", centerX)
-          .attr("cy", centerY)
-          .attr("r", 0)
-          .style("opacity", 1)
-          .transition().duration(1000)
-          .attr("cx", d.x)
-          .attr("cy", d.y)
-          .attr("r", 10);
-      } else {
-        // 已经出现过：保持可见
-        circle.transition().duration(600).style("opacity", 1);
-      }
-    } else {
-      // 未来的课程：隐藏
-      circle.transition().duration(600).style("opacity", 0);
-    }
-  });
-
-  // 标签飞入
-  label.each(function(d) {
-    const text = d3.select(this);
-    if (d.year <= currentYear) {
-      if (text.style("opacity") == 0 || text.style("opacity") === "") {
-        text
-          .style("opacity", 0)
-          .attr("transform", `translate(${centerX},${centerY})`)
-          .transition().duration(1000)
-          .style("opacity", 1)
-          .attr("transform", `translate(${d.x + Math.cos(d.angle)*20},${d.y + Math.sin(d.angle)*20})`);
-      } else {
-        text.transition().duration(600).style("opacity", 1);
-      }
-    } else {
-      text.transition().duration(600).style("opacity", 0);
-    }
-  });
-
-  // 边：两端都出现才显示
-  link.transition().duration(600)
-    .style("opacity", d => {
-      const s = getNode(d.source);
-      const t = getNode(d.target);
-      return (s.year <= currentYear && t.year <= currentYear) ? 1 : 0;
+    // resize handling (debounced)
+    let resizeTimeout = null;
+    window.addEventListener('resize', () => {
+      if (resizeTimeout) clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        // ensure wrapper has minHeight
+        const r = wrapper.getBoundingClientRect();
+        if (r.height < 200) wrapper.style.minHeight = Math.max(420, r.height) + 'px';
+        updatePositions();
+        updateVisibility();
+      }, 120);
     });
-}
 
-// 初始渲染
-updatePositions();
-updateVisibility();
+    console.log('courses-network: initialized', { width, height });
+  })();
+}
