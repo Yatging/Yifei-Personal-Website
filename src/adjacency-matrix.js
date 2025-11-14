@@ -173,25 +173,49 @@ function initFilterControls() {
   });
 
   // 全选/全不选按钮（类别）
-  const groupSelectAllBtn = document.createElement("button");
-  groupSelectAllBtn.textContent = "Groups All (De)Select";
-  groupSelectAllBtn.style.marginLeft = "12px";
-  groupSelectAllBtn.addEventListener("click", () => {
-    if (selectedGroups.size === groups.length) {
-      // 全部选中 → 全部取消
-      selectedGroups.clear();
-      groupContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
-    } else {
-      // 部分或全不选 → 全选
-      selectedGroups = new Set(groups);
-      groupContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = true);
-    }
-    renderAll();
-  });
-  groupContainer.appendChild(groupSelectAllBtn);
+  // 创建按钮并设置类名
+const groupSelectAllBtn = document.createElement("button");
+groupSelectAllBtn.textContent = "Groups All (De)Select";
+groupSelectAllBtn.className = 'group-select-all';
+groupSelectAllBtn.setAttribute('aria-pressed', 'false');
 
-  const yearContainer = document.getElementById("year-controls");
-  const years = [...new Set(courses.map(c => c.year))].sort();
+// 点击逻辑（保留原有全选/全不选功能）
+groupSelectAllBtn.addEventListener("click", () => {
+  const allSelected = selectedGroups.size === groups.length;
+  if (allSelected) {
+    // 全部选中 -> 取消所有
+    selectedGroups.clear();
+    groupContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
+    groupSelectAllBtn.classList.remove('active');
+    groupSelectAllBtn.setAttribute('aria-pressed', 'false');
+  } else {
+    // 部分或无选 -> 全选
+    selectedGroups = new Set(groups);
+    groupContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = true);
+    groupSelectAllBtn.classList.add('active');
+    groupSelectAllBtn.setAttribute('aria-pressed', 'true');
+  }
+  renderAll();
+});
+
+// 当单个 checkbox 改变时，更新按钮状态
+function updateGroupSelectAllBtn() {
+  if (selectedGroups.size === groups.length) {
+    groupSelectAllBtn.classList.add('active');
+    groupSelectAllBtn.setAttribute('aria-pressed', 'true');
+  } else {
+    groupSelectAllBtn.classList.remove('active');
+    groupSelectAllBtn.setAttribute('aria-pressed', 'false');
+  }
+}
+
+// 在每个 checkbox 的 change 事件处理器里调用 updateGroupSelectAllBtn()
+checkbox.addEventListener("change", () => {
+  if (checkbox.checked) selectedGroups.add(group);
+  else selectedGroups.delete(group);
+  updateGroupSelectAllBtn();
+  renderAll();
+});
 
   // 年份复选框
   years.forEach(year => {

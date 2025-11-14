@@ -238,6 +238,24 @@ section { padding: 36px 0; margin: 18px 0; text-align: left; }
   cursor: pointer;
   font-weight:700;
 }
+/* 选择全部按钮样式 */
+.group-select-all {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(11,18,32,0.06);
+  background: #fff;
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color .18s ease, color .12s ease, transform .12s ease;
+}
+.group-select-all.active {
+  background: var(--primary);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(14,165,233,0.12);
+}
+
 
 /* group swatch（JS 可插入 .group-swatch） */
 .group-swatch { width: 14px; height: 14px; border-radius: 3px; display:inline-block; margin-right:6px; border:1px solid rgba(0,0,0,0.06); vertical-align:middle; }
