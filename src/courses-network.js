@@ -1,6 +1,4 @@
-// src/courses-network.js (robust, responsive version)
-// 替换原文件：增加容器尺寸等待、回退、resize 处理与调试日志
-// 保留原有数据、年份过滤与动画逻辑
+// Full file — replace entire file with this content
 
 const courses = [
   { id: "SM1702", name: "Creative Media Studio I", group: "Basic", year:2023 },
@@ -10,10 +8,10 @@ const courses = [
   { id: "SM2706", name: "Critical Theory & Soc Engag Prac", group: "Theory", year:2025 },
   { id: "SM2715", name: "Creative Coding", group: "Coding", year:2024 },
   { id: "SM3804", name: "Materials & Fabrication Studio", group: "Workshop", year:2025 },
-  { id: "GE1401", name: "University English", group: "Culture",year:2023 },
-  { id: "GE2413", name: "Writing for Creative Media", group: "Culture",year:2024 },
-  { id: "SM2716", name: "Physical Computing & Tangible Media", group: "Coding",year:2025 },
-  { id: "SDSC2004", name: "Data Visualization", group: "Coding",year:2024 },
+  { id: "GE1401", name: "University English", group: "Culture", year:2023 },
+  { id: "GE2413", name: "Writing for Creative Media", group: "Culture", year:2024 },
+  { id: "SM2716", name: "Physical Computing & Tangible Media", group: "Coding", year:2025 },
+  { id: "SDSC2004", name: "Data Visualization", group: "Coding", year:2024 },
   { id: "CS1103", name: "Media Computing", group: "Coding", year:2023 },
   { id: "GE1501", name: "Chinese Civilisation - History&Philosophy", group: "Culture", year:2023 },
   { id: "GE2132", name: "Dynamics of Chinese Cities&Architecture", group: "Culture", year:2025 },
@@ -22,7 +20,7 @@ const courses = [
   { id: "SM1013", name: "Introduction to Photography", group: "Workshop", year:2025 },
   { id: "SM2805", name: "Imaging Science Studio", group: "Workshop", year:2025 },
   { id: "SM3749", name: "Information Visualization", group: "Coding", year:2025 },
-  { id: "SM3801", name: "Understanding Data", group: "Coding",year:2024 }
+  { id: "SM3801", name: "Understanding Data", group: "Coding", year:2024 }
 ];
 
 const links = [
@@ -65,7 +63,6 @@ if (!wrapper) {
         } else {
           tries++;
           if (tries >= maxRetries) {
-            // fallback: use parent width or defaults
             const parentW = wrapper.parentElement ? wrapper.parentElement.getBoundingClientRect().width : window.innerWidth;
             const fallbackW = Math.max(600, Math.floor(parentW) || 800);
             const fallbackH = Math.max(420, Math.floor(fallbackW * 0.6));
@@ -108,7 +105,7 @@ if (!wrapper) {
     const defs = svg.append('defs');
     const containerG = svg.append('g');
 
-    // initialize polar positions
+    // initial polar layout positions
     courses.forEach((d, i) => {
       d.angle = (i / courses.length) * 2 * Math.PI;
       d.radius = radius;
@@ -116,45 +113,35 @@ if (!wrapper) {
       d.y = centerY + d.radius * Math.sin(d.angle);
     });
 
-    function getNode(id) {
-      return typeof id === "string" ? courses.find(d => d.id === id) : id;
-    }
+    function getNode(id) { return typeof id === "string" ? courses.find(d => d.id === id) : id; }
 
-    function createGradient(id, color1, color2, x1, y1, x2, y2) {
-      defs.select(`#${id}`).remove();
-      const gradient = defs.append("linearGradient")
-        .attr("id", id)
-        .attr("gradientUnits", "userSpaceOnUse")
-        .attr("x1", x1)
-        .attr("y1", y1)
-        .attr("x2", x2)
-        .attr("y2", y2);
-      gradient.append("stop").attr("offset", "0%").attr("stop-color", color1);
-      gradient.append("stop").attr("offset", "100%").attr("stop-color", color2);
+    function createGradient(id, color1, color2) {
+      // simple radial gradient fallback (positions updated during updatePositions)
+      if (defs.select(`#${id}`).size()) return;
+      const g = defs.append('linearGradient').attr('id', id).attr('x1','0%').attr('y1','0%').attr('x2','100%').attr('y2','0%');
+      g.append('stop').attr('offset','0%').attr('stop-color', color1);
+      g.append('stop').attr('offset','100%').attr('stop-color', color2);
     }
 
     function wrapText(textEl, text, width) {
-      const words = text.split(" ");
-      let line = [];
-      let lineNumber = 0;
-      textEl.text(null);
-      let tspan = textEl.append("tspan").attr("x", 0).attr("dy", "0em");
-      for (let word of words) {
-        line.push(word);
-        tspan.text(line.join(" "));
-        if (tspan.node().getComputedTextLength() > width) {
+      // minimal wrapping: split into words and fit into up to 2 lines
+      const words = text.split(/\s+/);
+      let line = [], lineNumber = 0, lineHeight = 1.1;
+      let tspan = textEl.append('tspan').attr('x', 0).attr('dy', 0);
+      for (let i=0;i<words.length;i++){
+        line.push(words[i]);
+        tspan.text(line.join(' '));
+        if (tspan.node().getComputedTextLength() > width && line.length>1) {
           line.pop();
-          tspan.text(line.join(" "));
-          line = [word];
-          tspan = textEl.append("tspan")
-            .attr("x", 0)
-            .attr("dy", ++lineNumber * lineHeight + "em")
-            .text(word);
+          tspan.text(line.join(' '));
+          line = [words[i]];
+          tspan = textEl.append('tspan').attr('x', 0).attr('dy', `${lineHeight}em`).text(words[i]);
+          lineNumber++;
+          if (lineNumber >= 2) break;
         }
       }
     }
 
-    // draw elements
     const link = containerG.append("g")
       .selectAll("line")
       .data(links)
@@ -181,12 +168,9 @@ if (!wrapper) {
       .attr("font-family", "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif")
       .attr("fill", "#0B1220")
       .style("opacity", 1)
-      .each(function(d) {
-        wrapText(d3.select(this), d.name, textWidth);
-      });
+      .each(function(d) { wrapText(d3.select(this), d.name, textWidth); });
 
     function updatePositions() {
-      // recompute size in case wrapper changed
       const r = wrapper.getBoundingClientRect();
       width = Math.max(600, Math.floor(r.width) || width);
       height = Math.max(420, Math.floor(r.height) || height);
@@ -197,49 +181,37 @@ if (!wrapper) {
       svg.attr('viewBox', `0 0 ${width} ${height}`).attr('height', height);
 
       courses.forEach(d => {
-        const r = d.radius || radius;
-        d.x = centerX + r * Math.cos(d.angle);
-        d.y = centerY + r * Math.sin(d.angle);
+        const rr = d.radius || radius;
+        d.x = centerX + rr * Math.cos(d.angle);
+        d.y = centerY + rr * Math.sin(d.angle);
       });
 
       defs.selectAll("*").remove();
 
-      node
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y);
+      node.attr("cx", d => d.x).attr("cy", d => d.y);
 
-      label
-        .attr("transform", d => {
-          const offsetX = Math.cos(d.angle) * 20;
-          const offsetY = Math.sin(d.angle) * 20;
-          return `translate(${d.x + offsetX},${d.y + offsetY})`;
-        })
-        .attr("text-anchor", d => {
-          const deg = (d.angle * 180) / Math.PI;
-          return deg > 90 && deg < 270 ? "end" : "start";
-        });
+      label.attr("transform", d => {
+        const offsetX = Math.cos(d.angle) * 20;
+        const offsetY = Math.sin(d.angle) * 20;
+        return `translate(${d.x + offsetX},${d.y + offsetY})`;
+      }).attr("text-anchor", d => {
+        const deg = (d.angle * 180) / Math.PI;
+        return deg > 90 && deg < 270 ? "end" : "start";
+      });
 
-      link
-        .attr("x1", d => getNode(d.source).x)
-        .attr("y1", d => getNode(d.source).y)
-        .attr("x2", d => getNode(d.target).x)
-        .attr("y2", d => getNode(d.target).y)
-        .attr("stroke", d => {
-          const source = getNode(d.source);
-          const target = getNode(d.target);
-          const sGroup = source.group;
-          const tGroup = target.group;
-          if (sGroup === tGroup) {
-            return colorScale(sGroup);
-          } else {
+      link.attr("x1", d => getNode(d.source).x)
+          .attr("y1", d => getNode(d.source).y)
+          .attr("x2", d => getNode(d.target).x)
+          .attr("y2", d => getNode(d.target).y)
+          .attr("stroke", d => {
+            const source = getNode(d.source), target = getNode(d.target);
+            if (source.group === target.group) return colorScale(source.group);
             const gradId = `gradient-${source.id}-${target.id}`;
-            createGradient(gradId, colorScale(sGroup), colorScale(tGroup), source.x, source.y, target.x, target.y);
+            createGradient(gradId, colorScale(source.group), colorScale(target.group));
             return `url(#${gradId})`;
-          }
-        });
+          });
     }
 
-    // rotation drag
     let lastX = null;
     svg.call(d3.drag()
       .on("start", event => { lastX = event.x; })
@@ -254,33 +226,26 @@ if (!wrapper) {
       .on("end", () => { lastX = null; })
     );
 
-    // year slider
     let currentYear = +d3.select("#year-slider").node()?.value || new Date().getFullYear();
-    d3.select("#year-label").text(currentYear);
-    d3.select("#year-slider").on("input", function() {
-      currentYear = +this.value;
-      d3.select("#year-label").text(currentYear);
-      updateVisibility();
-    });
+    if (d3.select("#year-label").node()) d3.select("#year-label").text(currentYear);
+    if (d3.select("#year-slider").node()) {
+      d3.select("#year-slider").on("input", function() {
+        currentYear = +this.value;
+        if (d3.select("#year-label").node()) d3.select("#year-label").text(currentYear);
+        updateVisibility();
+      });
+    }
 
-    function updateVisibility() {
+    function updateVisibility(extraFilterGroups = null, extraFilterYears = null) {
       node.each(function(d) {
         const circle = d3.select(this);
-        if (d.year <= currentYear) {
-          if (!circle.attr("data-visible") || circle.attr("data-visible") === "false") {
-            circle
-              .attr("cx", centerX)
-              .attr("cy", centerY)
-              .attr("r", 0)
-              .style("opacity", 1)
-              .transition().duration(1000)
-              .attr("cx", d.x)
-              .attr("cy", d.y)
-              .attr("r", 10)
-              .on('end', () => circle.attr("data-visible", "true"));
-          } else {
-            circle.transition().duration(600).style("opacity", 1).attr("cx", d.x).attr("cy", d.y);
-          }
+        const inGroup = !extraFilterGroups || extraFilterGroups.size === 0 ? true : extraFilterGroups.has(d.group);
+        const inYearFilter = !extraFilterYears || extraFilterYears.size === 0 ? true : extraFilterYears.has(d.year);
+        const visibleByFilters = inGroup && inYearFilter;
+        const visibleBySlider = d.year <= currentYear;
+        const shouldShow = visibleByFilters && visibleBySlider;
+        if (shouldShow) {
+          circle.transition().duration(600).style("opacity", 1).attr("cx", d.x).attr("cy", d.y).attr("r", 10);
         } else {
           circle.transition().duration(600).style("opacity", 0).on('end', () => circle.attr("data-visible", "false"));
         }
@@ -288,20 +253,15 @@ if (!wrapper) {
 
       label.each(function(d) {
         const text = d3.select(this);
-        if (d.year <= currentYear) {
-          if (!text.attr("data-visible") || text.attr("data-visible") === "false") {
-            text
-              .style("opacity", 0)
-              .attr("transform", `translate(${centerX},${centerY})`)
-              .transition().duration(1000)
-              .style("opacity", 1)
-              .attr("transform", `translate(${d.x + Math.cos(d.angle)*20},${d.y + Math.sin(d.angle)*20})`)
-              .on('end', () => text.attr("data-visible", "true"));
-          } else {
-            text.transition().duration(600).style("opacity", 1).attr("transform", `translate(${d.x + Math.cos(d.angle)*20},${d.y + Math.sin(d.angle)*20})`);
-          }
+        const inGroup = !extraFilterGroups || extraFilterGroups.size === 0 ? true : extraFilterGroups.has(d.group);
+        const inYearFilter = !extraFilterYears || extraFilterYears.size === 0 ? true : extraFilterYears.has(d.year);
+        const visibleByFilters = inGroup && inYearFilter;
+        const visibleBySlider = d.year <= currentYear;
+        const shouldShow = visibleByFilters && visibleBySlider;
+        if (shouldShow) {
+          text.transition().duration(600).style("opacity", 1).attr("transform", `translate(${d.x + Math.cos(d.angle)*20},${d.y + Math.sin(d.angle)*20})`);
         } else {
-          text.transition().duration(600).style("opacity", 0).on('end', () => text.attr("data-visible", "false"));
+          text.transition().duration(600).style("opacity", 0);
         }
       });
 
@@ -309,20 +269,27 @@ if (!wrapper) {
         .style("opacity", d => {
           const s = getNode(d.source);
           const t = getNode(d.target);
-          return (s.year <= currentYear && t.year <= currentYear) ? 1 : 0;
+          const groupsOK = (!extraFilterGroups || extraFilterGroups.size === 0) ? true : (extraFilterGroups.has(s.group) && extraFilterGroups.has(t.group));
+          const yearsOK = (!extraFilterYears || extraFilterYears.size === 0) ? true : (extraFilterYears.has(s.year) && extraFilterYears.has(t.year));
+          const sliderOK = (s.year <= currentYear && t.year <= currentYear);
+          return (groupsOK && yearsOK && sliderOK) ? 1 : 0;
         });
     }
 
-    // initial
     updatePositions();
     updateVisibility();
 
-    // resize handling (debounced)
+    // Listen for adjacency filter changes and update network accordingly
+    document.addEventListener('adjacencyFiltersChanged', (e) => {
+      const groups = new Set(e.detail.groups || []);
+      const years = new Set(e.detail.years || []);
+      updateVisibility(groups, years);
+    });
+
     let resizeTimeout = null;
     window.addEventListener('resize', () => {
       if (resizeTimeout) clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        // ensure wrapper has minHeight
         const r = wrapper.getBoundingClientRect();
         if (r.height < 200) wrapper.style.minHeight = Math.max(420, r.height) + 'px';
         updatePositions();

@@ -1,129 +1,169 @@
-(function renderCourseReferenceTable() {
-  const container = document.getElementById("adjacency-matrix");
+// adjacency-matrix.js — complete modified file
+// - suppressRender to ensure (De)Select works when already all-selected/all-deselected
+// - robust renderAll with error capture & logging
+
+window.selectedGroups = window.selectedGroups || new Set();
+window.selectedYears = window.selectedYears || new Set();
+
+function splitCourseId(id) {
+  const match = id && id.toString().match(/^([A-Za-z]+)(\d+)$/);
+  if (match) return `${match[1]}<br>${match[2]}`;
+  return id;
+}
+
+function renderCourseReferenceTable(container) {
   if (!container) return;
+  const allCourses = typeof courses !== 'undefined' ? courses : [];
+  const filteredCourses = allCourses.filter(
+    c => (window.selectedGroups.size ? window.selectedGroups.has(c.group) : true) &&
+         (window.selectedYears.size ? window.selectedYears.has(c.year) : true)
+  );
 
-  const referenceTable = document.createElement("table");
-  referenceTable.style.borderCollapse = "collapse";
-  referenceTable.style.width = "100%";
-  referenceTable.style.fontSize = "12px";
-  referenceTable.style.marginBottom = "16px";
+  const referenceTable = document.createElement('table');
+  referenceTable.className = 'reference-table';
+  referenceTable.style.borderCollapse = 'collapse';
+  referenceTable.style.width = '100%';
+  referenceTable.style.fontSize = '12px';
+  referenceTable.style.marginBottom = '12px';
 
-  // 表头：两组课程
-  const header = document.createElement("tr");
-  ["Course ID", "Course Name", "Course ID", "Course Name"].forEach(text => {
-    const th = document.createElement("th");
+  const header = document.createElement('tr');
+  ['Course ID', 'Course Name', 'Course ID', 'Course Name'].forEach(text => {
+    const th = document.createElement('th');
     th.textContent = text;
-    th.style.padding = "6px";
-    th.style.border = "1px solid #ccc";
-    th.style.backgroundColor = "#f0f0f0";
+    th.style.padding = '6px';
+    th.style.border = '1px solid rgba(11,18,32,0.06)';
+    th.style.backgroundColor = '#f7f7f7';
+    th.style.textAlign = 'left';
     header.appendChild(th);
   });
   referenceTable.appendChild(header);
 
-  // 每行显示两个课程
-  for (let i = 0; i < courses.length; i += 2) {
-    const tr = document.createElement("tr");
-
-    for (let j = 0; j < 2; j++) {
-      const course = courses[i + j];
-      if (course) {
-        const bgColor = colorScale(course.group);
-        const textColor = "#fff";
-
-        const tdId = document.createElement("td");
-        tdId.textContent = course.id;
-        tdId.style.padding = "4px";
-        tdId.style.border = "1px solid #ccc";
-        tdId.style.backgroundColor = bgColor;
-        tdId.style.color = textColor;
-        tdId.style.textAlign = "center";
-
-        const tdName = document.createElement("td");
-        tdName.textContent = course.name;
-        tdName.style.padding = "4px";
-        tdName.style.border = "1px solid #ccc";
-        tdName.style.backgroundColor = bgColor;
-        tdName.style.color = textColor;
-
-        tr.appendChild(tdId);
-        tr.appendChild(tdName);
-      } else {
-        // 如果课程数量是奇数，补空单元格
-        tr.appendChild(document.createElement("td"));
-        tr.appendChild(document.createElement("td"));
-      }
-    }
-
+  if (filteredCourses.length === 0) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 4;
+    td.textContent = 'No courses match the current filters.';
+    td.style.padding = '10px';
+    td.style.textAlign = 'center';
+    td.style.color = '#6B7280';
+    tr.appendChild(td);
     referenceTable.appendChild(tr);
+  } else {
+    for (let i = 0; i < filteredCourses.length; i += 2) {
+      const tr = document.createElement('tr');
+      for (let j = 0; j < 2; j++) {
+        const course = filteredCourses[i + j];
+        if (course) {
+          const bg = (typeof colorScale === 'function') ? colorScale(course.group) : '#999';
+          const tdId = document.createElement('td');
+          tdId.innerHTML = splitCourseId(course.id);
+          tdId.className = 'ref-id';
+          tdId.style.padding = '6px';
+          tdId.style.border = '1px solid rgba(11,18,32,0.06)';
+          tdId.style.backgroundColor = bg;
+          tdId.style.color = '#fff';
+          tdId.style.textAlign = 'center';
+
+          const tdName = document.createElement('td');
+          tdName.textContent = course.name;
+          tdName.className = 'ref-name';
+          tdName.style.padding = '6px';
+          tdName.style.border = '1px solid rgba(11,18,32,0.06)';
+          tdName.style.backgroundColor = bg;
+          tdName.style.color = '#fff';
+          tdName.style.textAlign = 'left';
+
+          tr.appendChild(tdId);
+          tr.appendChild(tdName);
+        } else {
+          tr.appendChild(document.createElement('td'));
+          tr.appendChild(document.createElement('td'));
+        }
+      }
+      referenceTable.appendChild(tr);
+    }
   }
 
   container.appendChild(referenceTable);
-})();
+}
 
+function generateAdjacencyMatrix(container) {
+  if (!container) return;
+  const allCourses = typeof courses !== 'undefined' ? courses : [];
+  const filteredCourses = allCourses.filter(
+    c => (window.selectedGroups.size ? window.selectedGroups.has(c.group) : true) &&
+         (window.selectedYears.size ? window.selectedYears.has(c.year) : true)
+  );
 
-(function generateAdjacencyMatrix() {
-  const courseIds = courses.map(course => course.id);
+  const courseIds = filteredCourses.map(c => c.id);
   const idToIndex = Object.fromEntries(courseIds.map((id, i) => [id, i]));
-
   const size = courseIds.length;
   const matrix = Array.from({ length: size }, () => Array(size).fill(0));
 
-  links.forEach(({ source, target }) => {
-  const i = idToIndex[source];
-  const j = idToIndex[target];
-  if (i !== undefined && j !== undefined) {
-    matrix[i][j] = 1;
-    matrix[j][i] = 1; // Add this line to make the graph undirected
+  if (typeof links !== 'undefined') {
+    links.forEach(({ source, target }) => {
+      const i = idToIndex[source];
+      const j = idToIndex[target];
+      if (i !== undefined && j !== undefined) {
+        matrix[i][j] = 1;
+        matrix[j][i] = 1;
+      }
+    });
   }
-});
 
+  if (size === 0) {
+    const notice = document.createElement('div');
+    notice.textContent = 'No adjacency matrix to display for current filters.';
+    notice.style.padding = '12px';
+    notice.style.color = '#6B7280';
+    container.appendChild(notice);
+    return;
+  }
 
-  const container = document.getElementById("adjacency-matrix");
-  if (!container) return;
+  const table = document.createElement('table');
+  table.style.borderCollapse = 'collapse';
+  table.style.width = '100%';
+  table.style.fontSize = '11px';
+  table.style.tableLayout = 'fixed';
 
-  const table = document.createElement("table");
-  table.style.borderCollapse = "collapse";
-  table.style.width = "100%";
-  table.style.fontSize = "11px";
-  table.style.tableLayout = "fixed";
-
-  const headerRow = document.createElement("tr");
-  headerRow.appendChild(document.createElement("th"));
+  const headerRow = document.createElement('tr');
+  headerRow.appendChild(document.createElement('th'));
 
   courseIds.forEach(id => {
-    const th = document.createElement("th");
-    th.innerHTML = splitCourseId(id); // 使用换行
-    th.style.padding = "2px 4px";
-    th.style.backgroundColor = colorScale(getNode(id).group);
-    th.style.color = "#fff";
-    th.style.border = "1px solid #ccc";
-    th.style.wordBreak = "break-word";
-    th.style.textAlign = "center";
+    const th = document.createElement('th');
+    th.innerHTML = splitCourseId(id);
+    const node = filteredCourses.find(c => c.id === id);
+    th.style.padding = '4px';
+    th.style.backgroundColor = (typeof colorScale === 'function' && node) ? colorScale(node.group) : '#999';
+    th.style.color = '#fff';
+    th.style.border = '1px solid rgba(11,18,32,0.06)';
+    th.style.wordBreak = 'break-word';
+    th.style.textAlign = 'center';
     headerRow.appendChild(th);
   });
   table.appendChild(headerRow);
 
   matrix.forEach((row, i) => {
-    const tr = document.createElement("tr");
+    const tr = document.createElement('tr');
 
-    const rowLabel = document.createElement("th");
-    rowLabel.innerHTML = splitCourseId(courseIds[i]); // 使用换行
-    rowLabel.style.padding = "2px 4px";
-    rowLabel.style.backgroundColor = colorScale(getNode(courseIds[i]).group);
-    rowLabel.style.color = "#fff";
-    rowLabel.style.border = "1px solid #ccc";
-    rowLabel.style.wordBreak = "break-word";
-    rowLabel.style.textAlign = "center";
+    const rowLabel = document.createElement('th');
+    rowLabel.innerHTML = splitCourseId(courseIds[i]);
+    const node = filteredCourses.find(c => c.id === courseIds[i]);
+    rowLabel.style.padding = '4px';
+    rowLabel.style.backgroundColor = (typeof colorScale === 'function' && node) ? colorScale(node.group) : '#999';
+    rowLabel.style.color = '#fff';
+    rowLabel.style.border = '1px solid rgba(11,18,32,0.06)';
+    rowLabel.style.wordBreak = 'break-word';
+    rowLabel.style.textAlign = 'center';
     tr.appendChild(rowLabel);
 
     row.forEach(cell => {
-      const td = document.createElement("td");
-      td.textContent = cell;
-      td.style.textAlign = "center";
-      td.style.padding = "2px";
-      td.style.border = "1px solid #ccc";
-      td.style.backgroundColor = cell === 1 ? "#ffeb3b" : "#fff";
-      td.style.fontWeight = cell === 1 ? "bold" : "normal";
+      const td = document.createElement('td');
+      td.textContent = cell ? '•' : '';
+      td.style.textAlign = 'center';
+      td.style.padding = '6px';
+      td.style.border = '1px solid rgba(11,18,32,0.04)';
+      td.className = cell === 1 ? 'matrix-connected' : 'matrix-empty';
       tr.appendChild(td);
     });
 
@@ -131,327 +171,190 @@
   });
 
   container.appendChild(table);
-
-  function getNode(id) {
-    return courses.find(course => course.id === id);
-  }
-})();
-
-// 插入换行符：将课程编号中的字母和数字分开
-function splitCourseId(id) {
-  const match = id.match(/^([A-Za-z]+)(\d+)$/);
-  if (match) {
-    return `${match[1]}<br>${match[2]}`;
-  }
-  return id;
 }
-//筛选区
-// 全局变量：当前选择的类别 
-let selectedGroups = new Set();
-let selectedYears = new Set();
-
-// 修复后的 initFilterControls / renderAll / renderCourseReferenceTable
 
 function initFilterControls() {
-  const groupContainer = document.getElementById("filter-controls");
-  const yearContainer = document.getElementById("year-controls");
-  if (!groupContainer || !yearContainer) return; // 安全退出
+  const groupContainer = document.getElementById('filter-controls');
+  const yearContainer = document.getElementById('year-controls');
+  if (!groupContainer || !yearContainer) return;
 
-  // 计算类别与年份
-  const groups = [...new Set(courses.map(c => c.group))];
-  const years = [...new Set(courses.map(c => c.year))].sort();
+  const allCourses = typeof courses !== 'undefined' ? courses : [];
+  const groups = [...new Set(allCourses.map(c => c.group))];
+  const years = [...new Set(allCourses.map(c => c.year))].sort();
 
-  // 全局选择集合（若已存在则复用）
-  window.selectedGroups = window.selectedGroups || new Set();
-  window.selectedYears = window.selectedYears || new Set();
+  // Default to select-all when no prior selection
+  if (!window.selectedGroups || window.selectedGroups.size === 0) {
+    window.selectedGroups = new Set(groups);
+  }
+  if (!window.selectedYears || window.selectedYears.size === 0) {
+    window.selectedYears = new Set(years);
+  }
 
-  // 清空容器（避免重复渲染）
-  groupContainer.innerHTML = "";
-  yearContainer.innerHTML = "";
+  groupContainer.innerHTML = '';
+  yearContainer.innerHTML = '';
 
-  // 创建类别复选框
+  // flag to suppress individual checkbox handlers during programmatic updates
+  let suppressRender = false;
+
+  // create group checkboxes
   groups.forEach(group => {
-    const label = document.createElement("label");
-    label.className = 'group-label group-' + group.toLowerCase();
+    const label = document.createElement('label');
+    label.className = 'group-label';
 
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
     checkbox.value = group;
-    checkbox.checked = true;
+    checkbox.checked = window.selectedGroups.has(group);
 
-    // 小色块（可用于样式）
-    const swatch = document.createElement("span");
-    swatch.className = "group-swatch";
+    const swatch = document.createElement('span');
+    swatch.className = 'group-swatch';
+    if (typeof colorScale === 'function') swatch.style.backgroundColor = colorScale(group);
 
-    // 变更处理：更新集合、按钮状态并重渲染
-    checkbox.addEventListener("change", () => {
+    checkbox.addEventListener('change', () => {
+      if (suppressRender) return;
       if (checkbox.checked) window.selectedGroups.add(group);
       else window.selectedGroups.delete(group);
       updateGroupSelectAllBtn();
-      renderAll();
+      try { renderAll(); } catch (err) { console.error('[adj-matrix] renderAll error', err); }
     });
 
     label.appendChild(checkbox);
     label.appendChild(swatch);
-    label.appendChild(document.createTextNode(" " + group));
+    label.appendChild(document.createTextNode(' ' + group));
     groupContainer.appendChild(label);
-
-    // 初始加入集合
-    window.selectedGroups.add(group);
   });
 
-  // 创建 Groups 全选/全不选 按钮（并插入容器）
-  const groupSelectAllBtn = document.createElement("button");
-  groupSelectAllBtn.textContent = "Groups All (De)Select";
+  // group select-all button
+  const groupSelectAllBtn = document.createElement('button');
+  groupSelectAllBtn.textContent = 'Groups All (De)Select';
   groupSelectAllBtn.className = 'group-select-all';
   groupSelectAllBtn.setAttribute('aria-pressed', 'false');
 
-  groupSelectAllBtn.addEventListener("click", () => {
-    const allSelected = window.selectedGroups.size === groups.length;
-    if (allSelected) {
-      // 取消所有
-      window.selectedGroups.clear();
-      groupContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
-      groupSelectAllBtn.classList.remove('active');
-      groupSelectAllBtn.setAttribute('aria-pressed', 'false');
-    } else {
-      // 全选
-      window.selectedGroups = new Set(groups);
-      groupContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = true);
+  function updateGroupSelectAllBtn() {
+    const inputs = Array.from(groupContainer.querySelectorAll('input[type=checkbox]'));
+    const allChecked = inputs.length > 0 && inputs.every(cb => cb.checked);
+    if (allChecked) {
       groupSelectAllBtn.classList.add('active');
       groupSelectAllBtn.setAttribute('aria-pressed', 'true');
+    } else {
+      groupSelectAllBtn.classList.remove('active');
+      groupSelectAllBtn.setAttribute('aria-pressed', 'false');
     }
-    renderAll();
+  }
+
+  groupSelectAllBtn.addEventListener('click', () => {
+    const inputs = Array.from(groupContainer.querySelectorAll('input[type=checkbox]'));
+    const anyUnchecked = inputs.some(cb => !cb.checked);
+    suppressRender = true;
+    inputs.forEach(cb => cb.checked = anyUnchecked);
+    window.selectedGroups = anyUnchecked ? new Set(groups) : new Set();
+    suppressRender = false;
+    updateGroupSelectAllBtn();
+    try { renderAll(); } catch (err) { console.error('[adj-matrix] renderAll error', err); }
   });
 
   groupContainer.appendChild(groupSelectAllBtn);
-
-  // 更新 Groups 全选按钮状态的辅助函数
-  function updateGroupSelectAllBtn() {
-    if (window.selectedGroups.size === groups.length) {
-      groupSelectAllBtn.classList.add('active');
-      groupSelectAllBtn.setAttribute('aria-pressed', 'true');
-    } else {
-      groupSelectAllBtn.classList.remove('active');
-      groupSelectAllBtn.setAttribute('aria-pressed', 'false');
-    }
-  }
-  // 初始化按钮状态
   updateGroupSelectAllBtn();
 
-  // 年份复选框（渲染到 yearContainer）
+  // create year checkboxes
   years.forEach(year => {
-    const label = document.createElement("label");
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.value = year;
-    checkbox.checked = true;
+    const label = document.createElement('label');
+    label.className = 'year-label';
 
-    checkbox.addEventListener("change", () => {
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = year;
+    checkbox.checked = window.selectedYears.has(year);
+
+    checkbox.addEventListener('change', () => {
+      if (suppressRender) return;
       if (checkbox.checked) window.selectedYears.add(year);
       else window.selectedYears.delete(year);
       updateYearSelectAllBtn();
-      renderAll();
+      try { renderAll(); } catch (err) { console.error('[adj-matrix] renderAll error', err); }
     });
 
     label.appendChild(checkbox);
-    label.appendChild(document.createTextNode(" " + year));
+    label.appendChild(document.createTextNode(' ' + year));
     yearContainer.appendChild(label);
-
-    // 初始加入集合
-    window.selectedYears.add(year);
   });
 
-  // 年份 全选/全不选 按钮
-  const yearSelectAllBtn = document.createElement("button");
-  yearSelectAllBtn.textContent = "Years All (De)Select";
+  // year select-all button
+  const yearSelectAllBtn = document.createElement('button');
+  yearSelectAllBtn.textContent = 'Years All (De)Select';
   yearSelectAllBtn.className = 'year-select-all';
-  yearSelectAllBtn.setAttribute('aria-pressed', 'true');
+  yearSelectAllBtn.setAttribute('aria-pressed', 'false');
 
-  yearSelectAllBtn.addEventListener("click", () => {
-    const allSelected = window.selectedYears.size === years.length;
-    if (allSelected) {
-      window.selectedYears.clear();
-      yearContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
-      yearSelectAllBtn.classList.remove('active');
-      yearSelectAllBtn.setAttribute('aria-pressed', 'false');
-    } else {
-      window.selectedYears = new Set(years);
-      yearContainer.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = true);
+  function updateYearSelectAllBtn() {
+    const inputs = Array.from(yearContainer.querySelectorAll('input[type=checkbox]'));
+    const allChecked = inputs.length > 0 && inputs.every(cb => cb.checked);
+    if (allChecked) {
       yearSelectAllBtn.classList.add('active');
       yearSelectAllBtn.setAttribute('aria-pressed', 'true');
+    } else {
+      yearSelectAllBtn.classList.remove('active');
+      yearSelectAllBtn.setAttribute('aria-pressed', 'false');
     }
-    renderAll();
+  }
+
+  yearSelectAllBtn.addEventListener('click', () => {
+    const inputs = Array.from(yearContainer.querySelectorAll('input[type=checkbox]'));
+    const anyUnchecked = inputs.some(cb => !cb.checked);
+    suppressRender = true;
+    inputs.forEach(cb => cb.checked = anyUnchecked);
+    window.selectedYears = anyUnchecked ? new Set(years) : new Set();
+    suppressRender = false;
+    updateYearSelectAllBtn();
+    try { renderAll(); } catch (err) { console.error('[adj-matrix] renderAll error', err); }
   });
 
   yearContainer.appendChild(yearSelectAllBtn);
-
-  // 更新年份全选按钮状态
-  function updateYearSelectAllBtn() {
-    if (window.selectedYears.size === years.length) {
-      yearSelectAllBtn.classList.add('active');
-      yearSelectAllBtn.setAttribute('aria-pressed', 'true');
-    } else {
-      yearSelectAllBtn.classList.remove('active');
-      yearSelectAllBtn.setAttribute('aria-pressed', 'false');
-    }
-  }
-  // 初始化年份按钮状态
   updateYearSelectAllBtn();
 }
 
-// renderAll 保持原逻辑（清空并重渲染）
 function renderAll() {
-  const container = document.getElementById("adjacency-matrix");
-  if (!container) return;
-  container.innerHTML = "";
-  renderCourseReferenceTable();
-  generateAdjacencyMatrix();
-}
+  const container = document.getElementById('adjacency-matrix');
+  if (!container) {
+    console.warn('[adj-matrix] #adjacency-matrix container missing');
+    return;
+  }
+  container.innerHTML = '';
+  console.log('[adj-matrix] renderAll', { groups: Array.from(window.selectedGroups), years: Array.from(window.selectedYears) });
 
-// renderCourseReferenceTable 保持原有功能，但使用 class-friendly attributes
-function renderCourseReferenceTable() {
-  const container = document.getElementById("adjacency-matrix");
-  if (!container) return;
-
-  const filteredCourses = courses.filter(
-    c => (window.selectedGroups ? window.selectedGroups.has(c.group) : true) &&
-         (window.selectedYears ? window.selectedYears.has(c.year) : true)
-  );
-
-  const referenceTable = document.createElement("table");
-  referenceTable.className = "reference-table";
-  referenceTable.style.borderCollapse = "collapse";
-  referenceTable.style.width = "100%";
-  referenceTable.style.fontSize = "12px";
-  referenceTable.style.marginBottom = "16px";
-
-  const header = document.createElement("tr");
-  ["Course ID", "Course Name", "Course ID", "Course Name"].forEach(text => {
-    const th = document.createElement("th");
-    th.textContent = text;
-    th.style.padding = "6px";
-    th.style.border = "1px solid #ccc";
-    th.style.backgroundColor = "#f0f0f0";
-    header.appendChild(th);
-  });
-  referenceTable.appendChild(header);
-
-  for (let i = 0; i < filteredCourses.length; i += 2) {
-    const tr = document.createElement("tr");
-    for (let j = 0; j < 2; j++) {
-      const course = filteredCourses[i + j];
-      if (course) {
-        const bgColor = colorScale(course.group);
-        const textColor = "#fff";
-
-        const tdId = document.createElement("td");
-        tdId.textContent = course.id;
-        tdId.className = "ref-id";
-        tdId.style.padding = "4px";
-        tdId.style.border = "1px solid #ccc";
-        tdId.style.backgroundColor = bgColor;
-        tdId.style.color = textColor;
-        tdId.style.textAlign = "center";
-
-        const tdName = document.createElement("td");
-        tdName.textContent = course.name;
-        tdName.className = "ref-name";
-        tdName.style.padding = "4px";
-        tdName.style.border = "1px solid #ccc";
-        tdName.style.backgroundColor = bgColor;
-        tdName.style.color = textColor;
-
-        tr.appendChild(tdId);
-        tr.appendChild(tdName);
-      } else {
-        tr.appendChild(document.createElement("td"));
-        tr.appendChild(document.createElement("td"));
-      }
-    }
-    referenceTable.appendChild(tr);
+  try {
+    renderCourseReferenceTable(container);
+  } catch (err) {
+    console.error('[adj-matrix] renderCourseReferenceTable error', err);
+    const errNotice = document.createElement('div');
+    errNotice.textContent = 'Error rendering reference table (see console).';
+    errNotice.style.color = '#b91c1c';
+    container.appendChild(errNotice);
   }
 
-  container.appendChild(referenceTable);
-}
+  try {
+    generateAdjacencyMatrix(container);
+  } catch (err) {
+    console.error('[adj-matrix] generateAdjacencyMatrix error', err);
+    const errNotice = document.createElement('div');
+    errNotice.textContent = 'Error rendering matrix (see console).';
+    errNotice.style.color = '#b91c1c';
+    container.appendChild(errNotice);
+  }
 
-
-function generateAdjacencyMatrix() {
-  const filteredCourses = courses.filter(
-    c => selectedGroups.has(c.group) && selectedYears.has(c.year)
-  );
-  const courseIds = filteredCourses.map(c => c.id);
-  const idToIndex = Object.fromEntries(courseIds.map((id, i) => [id, i]));
-
-  const size = courseIds.length;
-  const matrix = Array.from({ length: size }, () => Array(size).fill(0));
-
-  links.forEach(({ source, target }) => {
-    const i = idToIndex[source];
-    const j = idToIndex[target];
-    if (i !== undefined && j !== undefined) {
-      matrix[i][j] = 1;
-      matrix[j][i] = 1;
+  const ev = new CustomEvent('adjacencyFiltersChanged', {
+    detail: {
+      groups: Array.from(window.selectedGroups),
+      years: Array.from(window.selectedYears)
     }
   });
-
-  const container = document.getElementById("adjacency-matrix");
-  if (!container) return;
-
-  const table = document.createElement("table");
-  table.style.borderCollapse = "collapse";
-  table.style.width = "100%";
-  table.style.fontSize = "11px";
-  table.style.tableLayout = "fixed";
-
-  const headerRow = document.createElement("tr");
-  headerRow.appendChild(document.createElement("th"));
-
-  courseIds.forEach(id => {
-    const th = document.createElement("th");
-    th.innerHTML = splitCourseId(id);
-    th.style.padding = "2px 4px";
-    th.style.backgroundColor = colorScale(getNode(id).group);
-    th.style.color = "#fff";
-    th.style.border = "1px solid #ccc";
-    th.style.wordBreak = "break-word";
-    th.style.textAlign = "center";
-    headerRow.appendChild(th);
-  });
-  table.appendChild(headerRow);
-
-  matrix.forEach((row, i) => {
-    const tr = document.createElement("tr");
-    const rowLabel = document.createElement("th");
-    rowLabel.innerHTML = splitCourseId(courseIds[i]);
-    rowLabel.style.padding = "2px 4px";
-    rowLabel.style.backgroundColor = colorScale(getNode(courseIds[i]).group);
-    rowLabel.style.color = "#fff";
-    rowLabel.style.border = "1px solid #ccc";
-    rowLabel.style.wordBreak = "break-word";
-    rowLabel.style.textAlign = "center";
-    tr.appendChild(rowLabel);
-
-    row.forEach(cell => {
-      const td = document.createElement("td");
-      td.textContent = cell;
-      td.style.textAlign = "center";
-      td.style.padding = "2px";
-      td.style.border = "1px solid #ccc";
-      td.style.backgroundColor = cell === 1 ? "#ffeb3b" : "#fff";
-      td.style.fontWeight = cell === 1 ? "bold" : "normal";
-      tr.appendChild(td);
-    });
-    table.appendChild(tr);
-  });
-
-  container.appendChild(table);
-
-  function getNode(id) {
-    return filteredCourses.find(course => course.id === id);
-  }
+  document.dispatchEvent(ev);
 }
 
-// 初始化
-initFilterControls();
-renderAll();
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    initFilterControls();
+    renderAll();
+  } catch (err) {
+    console.error('[adj-matrix] init error', err);
+  }
+});
