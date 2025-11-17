@@ -30,11 +30,13 @@ const width = 800 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 
 // 创建 SVG
-const svg = d3.select("#vis-scatterplot")
-    .append("svg")
+// ...existing code...
+// lines 33-37 replacement
+const host = d3.select("#vis-scatterplot .container").node() ? d3.select("#vis-scatterplot .container") : d3.select("#vis-scatterplot");
+const svg = host.append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom);
-
+// ...existing code...
 // 标题
 svg.append("text")
     .attr("x", (width + margin.left + margin.right) / 2)
