@@ -145,7 +145,7 @@
   // labels (horizontal)
   nodes.append("text")
     .filter(d => d.depth >= 0)
-    .attr("dy", d => d.depth === 0 ? "200em" : "0.35em")
+    .attr("dy", d => d.depth === 0 ? "10em" : "35em") // 调整根节点文本位置
     .attr("x", d => {
       const isRight = Math.cos(d.angleRad - Math.PI / 2) > 0;
       if (d.depth === 2) return isRight ? 10 + 40 + 6 : -10 - 40 - 6;
@@ -162,19 +162,6 @@
     .style("cursor", d => d.data.url ? "pointer" : "default")
     .on("click", (event, d) => { if (d.data.url) window.open(d.data.url, "_blank"); })
     .call(wrapText, 160);
-
-  // optional root label above center (keeps root visually centered)
-  // 将根名字下移约 20px（原来 y = centerY - maxRadius - 18；现在加 20）
-  svg.append("text")
-    .attr("x", centerX)
-    .attr("y", centerY - maxRadius )
-    .attr("text-anchor", "middle")
-    .text(radialData.name)
-    .style("font-size", "16px")
-    .style("font-weight", "700")
-    .style("fill", "#111")
-    .style("font-family", "Inter, system-ui, 'Segoe UI', sans-serif")
-    .call(wrapText, 320);
 
   // wrap helper (支持显式换行 '\n')
   function wrapText(selection, width) {

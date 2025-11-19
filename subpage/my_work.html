@@ -1,26 +1,297 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>My Work</title>
-    <link href="../style.css" rel="stylesheet" />
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Work - Photo Wall</title>
+    <link href="../style.css" rel="stylesheet">
+    <style>
+        /* 通用样式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .section {
+            margin: 40px auto;
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        /* 返回主页按钮样式 */
+        .back-home {
+            display: block;
+            margin: 20px auto;
+            text-align: center;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-home:hover {
+            background-color: #0056b3;
+        }
+
+        /* 新闻文章部分样式 */
+        .photo-wall {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .photo-item {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .photo-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-item .photo-details {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .photo-item:hover .photo-details {
+            opacity: 1;
+        }
+
+        /* 杂志排版样式 */
+        .magazine-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-gap: 0; /* 去除间隔 */
+            grid-auto-rows: auto;
+        }
+
+        .magazine-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0; /* 去除圆角 */
+            box-shadow: none; /* 去除阴影 */
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .magazine-item:hover {
+            transform: scale(1.05);
+        }
+
+        .magazine-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .magazine-item .magazine-details {
+            padding: 10px;
+            background: #fff;
+            text-align: center;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Subpage of HUANG Yifei's Website</h1>
+    <h1>My Work</h1>
+    <a href="../index.html" class="back-home">Back to Home</a>
 
-    <section id="vis-scatterplot">
-        <p>Random data with real link</p>
+    <!-- News Articles Section -->
+    <section class="section">
+        <h2>News Articles</h2>
+        <div class="photo-wall">
+            <div class="photo-item" data-link="https://example.com/news1">
+                <img src="../images/news1.jpg" alt="News 1">
+                <div class="photo-details">News 1: Description of the article</div>
+            </div>
+            <div class="photo-item" data-link="https://example.com/news2">
+                <img src="../images/news2.jpg" alt="News 2">
+                <div class="photo-details">News 2: Another article description</div>
+            </div>
+            <div class="photo-item" data-link="https://example.com/news3">
+                <img src="../images/news3.jpg" alt="News 3">
+                <div class="photo-details">News 3: Yet another article</div>
+            </div>
+            <div class="photo-item" data-link="https://example.com/news4">
+                <img src="../images/news4.jpg" alt="News 4">
+                <div class="photo-details">News 4: Another article description</div>
+            </div>
+            <div class="photo-item" data-link="https://example.com/news5">
+                <img src="../images/news5.jpg" alt="News 5">
+                <div class="photo-details">News 5: Another article description</div>
+            </div>
+            <div class="photo-item" data-link="https://example.com/news6">
+                <img src="../images/news6.jpg" alt="News 6">
+                <div class="photo-details">News 6: Another article description</div>
+            </div>
+        </div>
     </section>
 
-    <section id="vis-newplot">
-        <p>Real data!</p>
+    <!-- Poster Design Section -->
+    <section class="section">
+        <h2>Poster Design</h2>
+        <div class="magazine-layout">
+            <div class="magazine-item" data-link="https://example.com/poster1">
+                <img src="../images/poster1.png" alt="Poster 1">
+                <div class="magazine-details">Poster 1: Description of the design</div>
+            </div>
+            <div class="magazine-item" data-link="https://example.com/poster2">
+                <img src="../images/poster2.png" alt="Poster 2">
+                <div class="magazine-details">Poster 2: Another design description</div>
+            </div>
+            <div class="magazine-item" data-link="https://example.com/poster3">
+                <img src="../images/poster3.png" alt="Poster 3">
+                <div class="magazine-details">Poster 3: Another design description</div>
+            </div>
+            <div class="magazine-item" data-link="https://example.com/poster4">
+                <img src="../images/poster4.png" alt="Poster 4">
+                <div class="magazine-details">Poster 4: Another design description</div>
+            </div>
+        </div>
     </section>
 
-    <script src="code.js"></script>
-    <script src="../src/scatterplot.js"></script> <!--../来选主文件夹下的文件-->
-    <script src="../src/newplot.js"></script>
+    <!-- Photography Section -->
+    <section class="section">
+        <h2>Photography</h2>
+        <div class="magazine-layout">
+            <div class="magazine-item" data-link="https://example.com/photo1">
+                <img src="../images/photo1.jpg" alt="Photo 1">
+                <div class="magazine-details">Photo 1: Description of the photo</div>
+            </div>
+            <div class="magazine-item" data-link="https://example.com/photo2">
+                <img src="../images/photo2.jpg" alt="Photo 2">
+                <div class="magazine-details">Photo 2: Another photo description</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="section">
+        <h2>Projects</h2>
+        <div class="project-wall">
+            <div class="project-item" data-link="../projects/project1.pdf">
+                <img src="../images/project1.jpg" alt="Project 1">
+                <div class="project-details">Project 1: Description of the project</div>
+            </div>
+            <div class="project-item" data-link="../projects/project2.pdf">
+                <img src="../images/project2.jpg" alt="Project 2">
+                <div class="project-details">Project 2: Another project description</div>
+            </div>
+            <div class="project-item" data-link="../projects/project3.pdf">
+                <img src="../images/project3.jpg" alt="Project 3">
+                <div class="project-details">Project 3: Yet another project</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <span class="modal-close" id="modal-close">&times;</span>
+        <img id="modal-image" src="" alt="Expanded Work">
+    </div>
+
+    <script>
+        // Get all items
+        const items = document.querySelectorAll('.photo-item, .magazine-item');
+        const modal = document.getElementById('modal');
+        const modalImage = document.getElementById('modal-image');
+        const modalClose = document.getElementById('modal-close');
+
+        // Click to enlarge image
+        items.forEach(item => {
+            item.addEventListener('click', () => {
+                const imgSrc = item.querySelector('img').src;
+                const link = item.dataset.link;
+                modalImage.src = imgSrc;
+                modalImage.dataset.link = link;
+                modal.style.display = 'flex';
+            });
+        });
+
+        // Click modal image to open link
+        modalImage.addEventListener('click', () => {
+            const link = modalImage.dataset.link;
+            if (link) {
+                window.open(link, '_blank');
+            }
+        });
+
+        // Close modal
+        modalClose.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Close modal by clicking background
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 
 </html>
