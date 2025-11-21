@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
   { name: "Jinan", coords: [117.1201, 36.6512], province: "山东" },
   { name: "Rizhao", coords: [119.5269, 35.4163], province: "山东" },
   { name: "Qufu", coords: [117.0014, 35.5960], province: "山东" },
-  { name: "Tianjin", coords: [117.2000, 39.0842], province: "天津" }
+  { name: "Tianjin", coords: [117.2000, 39.0842], province: "天津" },
   ];
 
  const visitedProvinces = new Set(visitedPlaces.map(p => p.province));
