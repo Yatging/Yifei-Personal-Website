@@ -142,7 +142,7 @@
       .attr("stroke-width", 1);
   });
 
-  // labels (horizontal)
+  // labels (horizontal) 
   nodes.append("text")
     .filter(d => d.depth >= 0)
     .attr("dy", d => d.depth === 0 ? "10em" : "35em") // 调整根节点文本位置
