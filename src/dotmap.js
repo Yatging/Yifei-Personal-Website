@@ -41,7 +41,13 @@ document.addEventListener("DOMContentLoaded", function () {
     { name: "Guilin", coords: [110.2902, 25.2736], province: "广西" },
     { name: "Guiyang", coords: [106.6302, 26.6477], province: "贵州" },
     { name: "Libo (Qiannan)", coords: [107.8816, 25.4222], province: "贵州" },
-    { name: "Jilin City", coords: [126.5496, 43.8378], province: "吉林" } // ✅ 新增吉林市
+    { name: "Jilin City", coords: [126.5496, 43.8378], province: "吉林" } 
+    { name: "Haikou", coords: [110.3312, 20.0319], province: "海南" },
+  { name: "Qingdao", coords: [120.3826, 36.0671], province: "山东" },
+  { name: "Jinan", coords: [117.1201, 36.6512], province: "山东" },
+  { name: "Rizhao", coords: [119.5269, 35.4163], province: "山东" },
+  { name: "Qufu", coords: [117.0014, 35.5960], province: "山东" },
+  { name: "Tianjin", coords: [117.2000, 39.0842], province: "天津" }
   ];
 
  const visitedProvinces = new Set(visitedPlaces.map(p => p.province));
