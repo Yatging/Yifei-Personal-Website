@@ -1,4 +1,4 @@
-// Full file — replace entire file with this content
+// courses-network.js — fully patched with directional gradients
 
 const courses = [
   { id: "SM1702", name: "Creative Media Studio I", group: "Basic", year:2023 },
@@ -44,15 +44,13 @@ const colorScale = d3.scaleOrdinal()
   .domain(["Basic", "Theory", "Coding", "Culture", "Workshop"])
   .range(["#6baed6", "#9ecae1", "#f78fb3", "#31a354", "#fdae6b"]);
 
-// container
 const wrapper = document.getElementById('network-graph');
 if (!wrapper) {
   console.warn('courses-network: container #network-graph not found — aborting network render.');
 } else {
 
-  // wait for container to have a usable size (width > threshold)
   function waitForSize(threshold = 60, maxRetries = 12, interval = 80) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       let tries = 0;
       const check = () => {
         const r = wrapper.getBoundingClientRect();
@@ -77,7 +75,6 @@ if (!wrapper) {
     });
   }
 
-  // main async init
   (async function init() {
     const size = await waitForSize();
     let width = size.width;
@@ -85,13 +82,10 @@ if (!wrapper) {
     let centerX = width / 2;
     let centerY = height / 2;
     let radius = Math.min(width, height) / 2 - 80;
-    const lineHeight = 0.8;
     const textWidth = 160;
 
-    // ensure wrapper has a minimum height so layout doesn't collapse
     if (!wrapper.style.minHeight) wrapper.style.minHeight = Math.max(420, height) + 'px';
 
-    // remove any previous svg to avoid duplicates
     d3.select(wrapper).selectAll('svg').remove();
 
     const svg = d3.select(wrapper)
@@ -105,7 +99,6 @@ if (!wrapper) {
     const defs = svg.append('defs');
     const containerG = svg.append('g');
 
-    // initial polar layout positions
     courses.forEach((d, i) => {
       d.angle = (i / courses.length) * 2 * Math.PI;
       d.radius = radius;
@@ -113,20 +106,15 @@ if (!wrapper) {
       d.y = centerY + d.radius * Math.sin(d.angle);
     });
 
-    function getNode(id) { return typeof id === "string" ? courses.find(d => d.id === id) : id; }
-
-    function createGradient(id, color1, color2) {
-      // simple radial gradient fallback (positions updated during updatePositions)
-      if (defs.select(`#${id}`).size()) return;
-      const g = defs.append('linearGradient').attr('id', id).attr('x1','0%').attr('y1','0%').attr('x2','100%').attr('y2','0%');
-      g.append('stop').attr('offset','0%').attr('stop-color', color1);
-      g.append('stop').attr('offset','100%').attr('stop-color', color2);
+    function getNode(id) {
+      return typeof id === "string" ? courses.find(d => d.id === id) : id;
     }
 
     function wrapText(textEl, text, width) {
-      // minimal wrapping: split into words and fit into up to 2 lines
       const words = text.split(/\s+/);
-      let line = [], lineNumber = 0, lineHeight = 1.1;
+      let line = [];
+      let lineNumber = 0;
+      let lineHeight = 1.1;
       let tspan = textEl.append('tspan').attr('x', 0).attr('dy', 0);
       for (let i=0;i<words.length;i++){
         line.push(words[i]);
@@ -181,9 +169,8 @@ if (!wrapper) {
       svg.attr('viewBox', `0 0 ${width} ${height}`).attr('height', height);
 
       courses.forEach(d => {
-        const rr = d.radius || radius;
-        d.x = centerX + rr * Math.cos(d.angle);
-        d.y = centerY + rr * Math.sin(d.angle);
+        d.x = centerX + d.radius * Math.cos(d.angle);
+        d.y = centerY + d.radius * Math.sin(d.angle);
       });
 
       defs.selectAll("*").remove();
@@ -199,16 +186,41 @@ if (!wrapper) {
         return deg > 90 && deg < 270 ? "end" : "start";
       });
 
+      // --- FIXED: directional gradients ---
       link.attr("x1", d => getNode(d.source).x)
           .attr("y1", d => getNode(d.source).y)
           .attr("x2", d => getNode(d.target).x)
           .attr("y2", d => getNode(d.target).y)
           .attr("stroke", d => {
-            const source = getNode(d.source), target = getNode(d.target);
-            if (source.group === target.group) return colorScale(source.group);
-            const gradId = `gradient-${source.id}-${target.id}`;
-            createGradient(gradId, colorScale(source.group), colorScale(target.group));
-            return `url(#${gradId})`;
+            const s = getNode(d.source);
+            const t = getNode(d.target);
+            const color1 = colorScale(s.group);
+            const color2 = colorScale(t.group);
+
+            if (s.group === t.group) return color1;
+
+            const id = `gradient-${s.id}-${t.id}`;
+            let g = defs.select(`#${id}`);
+            if (!g.size()) {
+              g = defs.append("linearGradient").attr("id", id);
+            }
+
+            const dx = t.x - s.x;
+            const dy = t.y - s.y;
+            const angle = Math.atan2(dy, dx);
+            const ux = Math.cos(angle);
+            const uy = Math.sin(angle);
+
+            g.attr("x1", 0.5 - ux / 2)
+             .attr("y1", 0.5 - uy / 2)
+             .attr("x2", 0.5 + ux / 2)
+             .attr("y2", 0.5 + uy / 2);
+
+            g.selectAll("*").remove();
+            g.append("stop").attr("offset","0%").attr("stop-color", color1);
+            g.append("stop").attr("offset","100%").attr("stop-color", color2);
+
+            return `url(#${id})`;
           });
     }
 
@@ -216,7 +228,6 @@ if (!wrapper) {
     svg.call(d3.drag()
       .on("start", event => { lastX = event.x; })
       .on("drag", event => {
-        if (lastX == null) lastX = event.x;
         const dx = event.x - lastX;
         const deltaAngle = dx * 0.005;
         courses.forEach(d => d.angle += deltaAngle);
@@ -227,76 +238,50 @@ if (!wrapper) {
     );
 
     let currentYear = +d3.select("#year-slider").node()?.value || new Date().getFullYear();
-    if (d3.select("#year-label").node()) d3.select("#year-label").text(currentYear);
-    if (d3.select("#year-slider").node()) {
-      d3.select("#year-slider").on("input", function() {
-        currentYear = +this.value;
-        if (d3.select("#year-label").node()) d3.select("#year-label").text(currentYear);
-        updateVisibility();
-      });
-    }
 
-    function updateVisibility(extraFilterGroups = null, extraFilterYears = null) {
+    function updateVisibility(filterGroups = null, filterYears = null) {
       node.each(function(d) {
         const circle = d3.select(this);
-        const inGroup = !extraFilterGroups || extraFilterGroups.size === 0 ? true : extraFilterGroups.has(d.group);
-        const inYearFilter = !extraFilterYears || extraFilterYears.size === 0 ? true : extraFilterYears.has(d.year);
-        const visibleByFilters = inGroup && inYearFilter;
-        const visibleBySlider = d.year <= currentYear;
-        const shouldShow = visibleByFilters && visibleBySlider;
-        if (shouldShow) {
-          circle.transition().duration(600).style("opacity", 1).attr("cx", d.x).attr("cy", d.y).attr("r", 10);
-        } else {
-          circle.transition().duration(600).style("opacity", 0).on('end', () => circle.attr("data-visible", "false"));
-        }
+        const matchGroup = !filterGroups || filterGroups.size === 0 || filterGroups.has(d.group);
+        const matchYear = !filterYears || filterYears.size === 0 || filterYears.has(d.year);
+        const matchSlider = d.year <= currentYear;
+        const show = matchGroup && matchYear && matchSlider;
+        circle.transition().duration(600).style("opacity", show ? 1 : 0);
       });
 
       label.each(function(d) {
         const text = d3.select(this);
-        const inGroup = !extraFilterGroups || extraFilterGroups.size === 0 ? true : extraFilterGroups.has(d.group);
-        const inYearFilter = !extraFilterYears || extraFilterYears.size === 0 ? true : extraFilterYears.has(d.year);
-        const visibleByFilters = inGroup && inYearFilter;
-        const visibleBySlider = d.year <= currentYear;
-        const shouldShow = visibleByFilters && visibleBySlider;
-        if (shouldShow) {
-          text.transition().duration(600).style("opacity", 1).attr("transform", `translate(${d.x + Math.cos(d.angle)*20},${d.y + Math.sin(d.angle)*20})`);
-        } else {
-          text.transition().duration(600).style("opacity", 0);
-        }
+        const matchGroup = !filterGroups || filterGroups.size === 0 || filterGroups.has(d.group);
+        const matchYear = !filterYears || filterYears.size === 0 || filterYears.has(d.year);
+        const matchSlider = d.year <= currentYear;
+        const show = matchGroup && matchYear && matchSlider;
+        text.transition().duration(600).style("opacity", show ? 1 : 0);
       });
 
       link.transition().duration(600)
         .style("opacity", d => {
           const s = getNode(d.source);
           const t = getNode(d.target);
-          const groupsOK = (!extraFilterGroups || extraFilterGroups.size === 0) ? true : (extraFilterGroups.has(s.group) && extraFilterGroups.has(t.group));
-          const yearsOK = (!extraFilterYears || extraFilterYears.size === 0) ? true : (extraFilterYears.has(s.year) && extraFilterYears.has(t.year));
-          const sliderOK = (s.year <= currentYear && t.year <= currentYear);
-          return (groupsOK && yearsOK && sliderOK) ? 1 : 0;
+          const okGroup = (!filterGroups || filterGroups.size === 0) || (filterGroups.has(s.group) && filterGroups.has(t.group));
+          const okYear = (!filterYears || filterYears.size === 0) || (filterYears.has(s.year) && filterYears.has(t.year));
+          const okSlider = s.year <= currentYear && t.year <= currentYear;
+          return okGroup && okYear && okSlider ? 1 : 0;
         });
     }
 
     updatePositions();
     updateVisibility();
 
-    // Listen for adjacency filter changes and update network accordingly
-    document.addEventListener('adjacencyFiltersChanged', (e) => {
-      const groups = new Set(e.detail.groups || []);
-      const years = new Set(e.detail.years || []);
-      updateVisibility(groups, years);
+    document.addEventListener('adjacencyFiltersChanged', e => {
+      updateVisibility(new Set(e.detail.groups), new Set(e.detail.years));
     });
 
-    let resizeTimeout = null;
     window.addEventListener('resize', () => {
-      if (resizeTimeout) clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        const r = wrapper.getBoundingClientRect();
-        if (r.height < 200) wrapper.style.minHeight = Math.max(420, r.height) + 'px';
-        updatePositions();
-        updateVisibility();
-      }, 120);
+      updatePositions();
+      updateVisibility();
     });
 
-    console.log('courses-network: initialized', { width, height });
+    console.log("courses-network initialized");
   })();
+
 }
