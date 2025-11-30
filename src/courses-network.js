@@ -42,7 +42,11 @@ const links = [
 
 const colorScale = d3.scaleOrdinal()
   .domain(["Basic", "Theory", "Coding", "Culture", "Workshop"])
-  .range(["#6baed6", "#9ecae1", "#f78fb3", "#31a354", "#fdae6b"]);
+  .range([    "#E1306C",
+    "#0A66C2",
+    "#10B981",
+    "#F59E0B",
+    "#6366F1"]);
 
 const wrapper = document.getElementById('network-graph');
 if (!wrapper) {

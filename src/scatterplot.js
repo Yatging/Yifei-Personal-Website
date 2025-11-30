@@ -5,7 +5,7 @@ const data = [
     { year: 2019, type: "Drawing", count: 3 },
     { year: 2020, type: "Article", count: 8, url: "https://epaper.tkww.hk/a/202508/02/AP688d1f46e4b0f2e74393ad64.html" },
     { year: 2020, type: "Video", count: 2 },
-    { year: 2020, type: "Drawing", count: 7 },
+    { year: 2023, type: "Drawing", count: 7 },
     { year: 2021, type: "Article", count: 12, url: "https://epaper.tkww.hk/a/202508/08/AP68950862e4b0f2e74393e5b4.html" },
     { year: 2021, type: "Video", count: 5 },
     { year: 2021, type: "Music", count: 1 },
@@ -21,7 +21,7 @@ const data = [
     { year: 2025, type: "Article", count: 9, url: "https://www.tkww.hk/a/202507/13/AP6872fdade4b0e169b1365535.html" },
     { year: 2025, type: "Video", count: 8 ,url:"https://youth.tkww.hk/a/202507/27/AP6885f1a4e4b0f2e7439376fc.html" },
     { year: 2025, type: "Music", count: 2 },
-    { year: 2025, type: "Drawing", count: 4 }
+    { year: 2025, type: "Drawing", count: 30 }
 ];
 
 // 图表尺寸
@@ -30,13 +30,11 @@ const width = 800 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 
 // 创建 SVG
-// ...existing code...
-// lines 33-37 replacement
 const host = d3.select("#vis-scatterplot .container").node() ? d3.select("#vis-scatterplot .container") : d3.select("#vis-scatterplot");
 const svg = host.append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom);
-// ...existing code...
+
 // 标题
 svg.append("text")
     .attr("x", (width + margin.left + margin.right) / 2)
@@ -59,7 +57,7 @@ svg.append("text")
 const g = svg.append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-// 横轴：年份
+// 横轴
 const years = [...new Set(data.map(d => d.year))];
 const xScale = d3.scalePoint()
     .domain(years)
@@ -68,7 +66,7 @@ const xScale = d3.scalePoint()
 
 const xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d"));
 
-// 纵轴：作品类型
+// 纵轴
 const types = [...new Set(data.map(d => d.type))];
 const yScale = d3.scalePoint()
     .domain(types)
@@ -80,12 +78,19 @@ const rScale = d3.scaleSqrt()
     .domain(d3.extent(data, d => d.count))
     .range([3, 20]);
 
-// 颜色比例尺
+// ===============================
+// ⭐ 统一色板（与 matrix & network 完全一致）
+// ===============================
 const colorScale = d3.scaleOrdinal()
-    .domain(types)
-    .range(d3.schemeCategory10);
+  .domain(types)
+  .range([
+    "#E1306C",
+    "#10B981",
+    "#F59E0B",
+    "#6366F1"
+  ]);
 
-// 添加 X 轴
+// X 轴
 g.append("g")
     .attr("transform", `translate(0,${height})`)
     .call(xAxis);
@@ -97,20 +102,19 @@ g.append("text")
     .style("text-anchor", "middle")
     .text("Year");
 
-// 添加 Y 轴
+// Y 轴
 g.append("g").call(d3.axisLeft(yScale));
 
 g.append("text")
     .attr("class", "axis-label")
     .attr("transform", "rotate(-90)")
     .attr("x", -height / 2)
-    .attr("y", -70)   // 往左移
+    .attr("y", -70)
     .style("text-anchor", "middle")
     .text("Work Type");
 
 // tooltip
-const tooltip = d3.select("body").append("div")
-    .attr("class", "tooltip");
+const tooltip = d3.select("body").append("div").attr("class", "tooltip");
 
 // 绘制散点（Article 点加链接）
 g.selectAll(".dot")
@@ -126,20 +130,8 @@ g.selectAll(".dot")
   .attr("r", d => rScale(d.count))
   .attr("fill", d => colorScale(d.type))
   .attr("stroke", "#fff")
-  .attr("stroke-width", 1)
-//   .on("mouseover", function (event, d) {
-//       tooltip.transition().duration(200).style("opacity", 0.9);
-//       tooltip.html(
-//           `Year: ${d.year}<br/>Type: ${d.type}<br/>Count: ${d.count}`
-//           + (d.type === "Article" ? "<br/><em>Click to read article</em>" : "")
-//       )
-//       .style("left", (event.pageX + 10) + "px")
-//       .style("top", (event.pageY - 28) + "px");
-//   })
-//   .on("mouseout", function () {
-//       tooltip.transition().duration(500).style("opacity", 0);
-//   });
-//左下角显示详情
+  .attr("stroke-width", 1);
+
 // 图例
 const legend = svg.append("g")
     .attr("transform", `translate(${width + margin.left + 20}, ${margin.top})`);
@@ -161,4 +153,3 @@ types.forEach((t, i) => {
         .attr("alignment-baseline", "middle");
 });
 })();
-//用function包起来 里边的变量就不怕重复了
